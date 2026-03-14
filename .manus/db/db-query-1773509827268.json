@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `news` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`title` varchar(255) NOT NULL,\n\t`content` text,\n\t`image` varchar(512),\n\t`publishedAt` timestamp NOT NULL DEFAULT (now()),\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `news_id` PRIMARY KEY(`id`)\n);\n\nCREATE TABLE `products` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`name` varchar(255) NOT NULL,\n\t`description` text,\n\t`price` int NOT NULL,\n\t`image` varchar(512),\n\t`category` varchar(100),\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `products_id` PRIMARY KEY(`id`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2kZZZfmqknkRM4m.root --database DXoJFTzPkfdnBKgwYSzYQn --execute CREATE TABLE `news` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`title` varchar(255) NOT NULL,\n\t`content` text,\n\t`image` varchar(512),\n\t`publishedAt` timestamp NOT NULL DEFAULT (now()),\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `news_id` PRIMARY KEY(`id`)\n);\n\nCREATE TABLE `products` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`name` varchar(255) NOT NULL,\n\t`description` text,\n\t`price` int NOT NULL,\n\t`image` varchar(512),\n\t`category` varchar(100),\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `products_id` PRIMARY KEY(`id`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 2017
+}

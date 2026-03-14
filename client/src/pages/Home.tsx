@@ -1,6 +1,8 @@
+import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronRight } from "lucide-react";
 import { useState } from "react";
+import { getLoginUrl } from "@/const";
 
 /**
  * WeSmile Homepage - Modern Professional Healthcare Design
@@ -18,6 +20,7 @@ import { useState } from "react";
  */
 
 export default function Home() {
+  const { user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -50,9 +53,31 @@ export default function Home() {
             <a href="#contact" className="text-gray-700 hover:text-cyan-600 transition-colors font-medium">
               Contact
             </a>
+            {user ? (
+              <div className="flex items-center gap-4">
+                <span className="text-gray-700 font-medium">{user.name}</span>
+                {user.role === 'admin' && (
+                  <a href="/admin" className="text-cyan-600 hover:text-cyan-700 font-semibold">
+                    Admin
+                  </a>
+                )}
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={logout}
+                >
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <Button 
+                className="bg-cyan-600 hover:bg-cyan-700 text-white"
+                onClick={() => window.location.href = getLoginUrl()}
+              >
+                Login
+              </Button>
+            )}
           </div>
-
-
 
           {/* Mobile Menu Button */}
           <button 
@@ -78,9 +103,28 @@ export default function Home() {
             <a href="#contact" className="block text-gray-700 hover:text-cyan-600 transition-colors font-medium py-2">
               Contact
             </a>
-            <Button className="w-full bg-cyan-600 hover:bg-cyan-700 text-white mt-2">
-              Shop Now
-            </Button>
+            {user ? (
+              <>
+                {user.role === 'admin' && (
+                  <a href="/admin" className="block text-cyan-600 hover:text-cyan-700 font-semibold py-2">
+                    Admin
+                  </a>
+                )}
+                <Button 
+                  className="w-full bg-cyan-600 hover:bg-cyan-700 text-white mt-2"
+                  onClick={logout}
+                >
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <Button 
+                className="w-full bg-cyan-600 hover:bg-cyan-700 text-white mt-2"
+                onClick={() => window.location.href = getLoginUrl()}
+              >
+                Login
+              </Button>
+            )}
           </div>
         )}
       </nav>
@@ -178,7 +222,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Product Card 1 */}
-            <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow">
+            <a href="/product/1" className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow cursor-pointer block">
               <div className="bg-gradient-to-br from-blue-100 to-cyan-100 h-48 flex items-center justify-center">
                 <div className="text-5xl">🪥</div>
               </div>
@@ -188,14 +232,14 @@ export default function Home() {
                 <div className="flex items-center justify-between">
                   <span className="text-2xl font-bold text-cyan-600">$149</span>
                   <Button size="sm" className="bg-cyan-600 hover:bg-cyan-700">
-                    Add to Cart
+                    Buy
                   </Button>
                 </div>
               </div>
-            </div>
+            </a>
 
             {/* Product Card 2 */}
-            <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow">
+            <a href="/product/2" className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow cursor-pointer block">
               <div className="bg-gradient-to-br from-teal-100 to-blue-100 h-48 flex items-center justify-center">
                 <div className="text-5xl">✨</div>
               </div>
@@ -205,14 +249,14 @@ export default function Home() {
                 <div className="flex items-center justify-between">
                   <span className="text-2xl font-bold text-cyan-600">$29</span>
                   <Button size="sm" className="bg-cyan-600 hover:bg-cyan-700">
-                    Add to Cart
+                    Buy
                   </Button>
                 </div>
               </div>
-            </div>
+            </a>
 
             {/* Product Card 3 */}
-            <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow">
+            <a href="/product/3" className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow cursor-pointer block">
               <div className="bg-gradient-to-br from-cyan-100 to-blue-100 h-48 flex items-center justify-center">
                 <div className="text-5xl">💧</div>
               </div>
@@ -222,14 +266,14 @@ export default function Home() {
                 <div className="flex items-center justify-between">
                   <span className="text-2xl font-bold text-cyan-600">$69</span>
                   <Button size="sm" className="bg-cyan-600 hover:bg-cyan-700">
-                    Add to Cart
+                    Buy
                   </Button>
                 </div>
               </div>
-            </div>
+            </a>
 
             {/* Product Card 4 */}
-            <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow">
+            <a href="/product/4" className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow cursor-pointer block">
               <div className="bg-gradient-to-br from-blue-100 to-teal-100 h-48 flex items-center justify-center">
                 <div className="text-5xl">⚡</div>
               </div>
@@ -239,11 +283,11 @@ export default function Home() {
                 <div className="flex items-center justify-between">
                   <span className="text-2xl font-bold text-cyan-600">$99</span>
                   <Button size="sm" className="bg-cyan-600 hover:bg-cyan-700">
-                    Add to Cart
+                    Buy
                   </Button>
                 </div>
               </div>
-            </div>
+            </a>
           </div>
         </div>
       </section>
