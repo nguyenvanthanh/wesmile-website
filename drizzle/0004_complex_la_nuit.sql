@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `memberRole` enum('restricted','editor','admin','super_admin') DEFAULT 'restricted' NOT NULL;

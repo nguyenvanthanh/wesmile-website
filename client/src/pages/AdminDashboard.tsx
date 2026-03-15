@@ -9,6 +9,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import ProductForm from "@/components/ProductForm";
 import NewsForm from "@/components/NewsForm";
+import MembersManagement from "@/components/MembersManagement";
 
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
@@ -132,9 +133,12 @@ export default function AdminDashboard() {
       {/* Admin Content */}
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-8">
+          <TabsList className="grid w-full grid-cols-3 mb-8">
             <TabsTrigger value="products">Products</TabsTrigger>
             <TabsTrigger value="news">News</TabsTrigger>
+            {user?.memberRole === 'super_admin' && (
+              <TabsTrigger value="members">Members</TabsTrigger>
+            )}
           </TabsList>
 
           {/* Products Tab */}
@@ -213,6 +217,13 @@ export default function AdminDashboard() {
               </div>
             )}
           </TabsContent>
+
+          {/* Members Tab - Only for Super Admin */}
+          {user?.memberRole === 'super_admin' && (
+            <TabsContent value="members" className="space-y-6">
+              <MembersManagement />
+            </TabsContent>
+          )}
 
           {/* News Tab */}
           <TabsContent value="news" className="space-y-6">

@@ -53,6 +53,15 @@
 - [x] Remove Login button from navigation bar
 - [x] Test /login route accessibility
 
+## Phase 8: Member Management & Permissions
+- [x] Update user schema with role and permissions
+- [x] Create member management page in admin dashboard
+- [x] Create API endpoints for managing members
+- [x] Implement permission checking for CRUD operations
+- [x] Add role-based access control (RBAC)
+- [ ] Set super admin for thanhnv286@gmail.com (manual database update)
+- [ ] Test permission system with unit tests
+
 ## Phase 7: Enhancement
 - [ ] Add news images
 - [ ] Implement shopping cart functionality

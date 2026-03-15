@@ -13,7 +13,10 @@ import {
   deleteProduct,
   createNews,
   updateNews,
-  deleteNews
+  deleteNews,
+  getAllUsers,
+  getUserById,
+  updateUserMemberRole
 } from "./db";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
@@ -22,6 +25,32 @@ import { TRPCError } from "@trpc/server";
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (ctx.user?.role !== 'admin') {
     throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+  }
+  return next({ ctx });
+});
+
+// Helper to check if user is super admin
+const superAdminProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (ctx.user?.memberRole !== 'super_admin') {
+    throw new TRPCError({ code: 'FORBIDDEN', message: 'Super admin access required' });
+  }
+  return next({ ctx });
+});
+
+// Helper to check if user can create/edit (editor or higher)
+const editorProcedure = protectedProcedure.use(({ ctx, next }) => {
+  const allowedRoles = ['editor', 'admin', 'super_admin'];
+  if (!allowedRoles.includes(ctx.user?.memberRole || '')) {
+    throw new TRPCError({ code: 'FORBIDDEN', message: 'Editor access required' });
+  }
+  return next({ ctx });
+});
+
+// Helper to check if user can delete (admin or higher)
+const deleteAdminProcedure = protectedProcedure.use(({ ctx, next }) => {
+  const allowedRoles = ['admin', 'super_admin'];
+  if (!allowedRoles.includes(ctx.user?.memberRole || '')) {
+    throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required to delete' });
   }
   return next({ ctx });
 });
@@ -60,8 +89,8 @@ export const appRouter = router({
     list: publicProcedure.query(() => getProducts()),
     getById: publicProcedure.input(z.object({ id: z.number() })).query(({ input }) => getProductById(input.id)),
     
-    // Admin endpoints
-    create: adminProcedure
+    // Editor+ endpoints
+    create: editorProcedure
       .input(productInputSchema)
       .mutation(async ({ input }) => {
         try {
@@ -83,7 +112,7 @@ export const appRouter = router({
         }
       }),
 
-    update: adminProcedure
+    update: editorProcedure
       .input(z.object({
         id: z.number(),
         ...productInputSchema.shape,
@@ -112,7 +141,7 @@ export const appRouter = router({
         }
       }),
 
-    delete: adminProcedure
+    delete: deleteAdminProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
         try {
@@ -127,7 +156,7 @@ export const appRouter = router({
         }
       }),
 
-    uploadImage: adminProcedure
+    uploadImage: editorProcedure
       .input(z.object({
         fileData: z.string(), // base64 encoded file
         fileName: z.string(),
@@ -161,8 +190,8 @@ export const appRouter = router({
     list: publicProcedure.query(() => getNews()),
     getById: publicProcedure.input(z.object({ id: z.number() })).query(({ input }) => getNewsById(input.id)),
     
-    // Admin endpoints
-    create: adminProcedure
+    // Editor+ endpoints
+    create: editorProcedure
       .input(newsInputSchema)
       .mutation(async ({ input }) => {
         try {
@@ -181,7 +210,7 @@ export const appRouter = router({
         }
       }),
 
-    update: adminProcedure
+    update: editorProcedure
       .input(z.object({
         id: z.number(),
         ...newsInputSchema.shape,
@@ -204,7 +233,7 @@ export const appRouter = router({
         }
       }),
 
-    delete: adminProcedure
+    delete: deleteAdminProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
         try {
@@ -215,6 +244,35 @@ export const appRouter = router({
           throw new TRPCError({
             code: 'INTERNAL_SERVER_ERROR',
             message: 'Failed to delete news'
+          });
+        }
+      }),
+  }),
+
+  members: router({
+    // Get all members (super admin only)
+    list: superAdminProcedure.query(() => getAllUsers()),
+    
+    // Get member by id (super admin only)
+    getById: superAdminProcedure
+      .input(z.object({ id: z.number() }))
+      .query(({ input }) => getUserById(input.id)),
+    
+    // Update member role (super admin only)
+    updateRole: superAdminProcedure
+      .input(z.object({
+        userId: z.number(),
+        memberRole: z.enum(['restricted', 'editor', 'admin', 'super_admin'])
+      }))
+      .mutation(async ({ input }) => {
+        try {
+          await updateUserMemberRole(input.userId, input.memberRole);
+          return { success: true, message: "Member role updated successfully" };
+        } catch (error) {
+          console.error("Error updating member role:", error);
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to update member role'
           });
         }
       }),

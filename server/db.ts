@@ -159,4 +159,25 @@ export async function deleteNews(id: number) {
   return result;
 }
 
+// Member management operations
+export async function getAllUsers() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(users);
+}
+
+export async function getUserById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateUserMemberRole(userId: number, memberRole: 'restricted' | 'editor' | 'admin' | 'super_admin') {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.update(users).set({ memberRole }).where(eq(users.id, userId));
+  return result;
+}
+
 // TODO: add feature queries here as your schema grows.
