@@ -64,15 +64,23 @@ export const appRouter = router({
     create: adminProcedure
       .input(productInputSchema)
       .mutation(async ({ input }) => {
-        const result = await createProduct({
-          name: input.name,
-          description: input.description || null,
-          price: Math.round(input.price * 100), // Convert to cents
-          image: input.image || null,
-          images: input.images || null,
-          category: input.category || null,
-        });
-        return { success: true, message: "Product created successfully" };
+        try {
+          const result = await createProduct({
+            name: input.name,
+            description: input.description || null,
+            price: Math.round(input.price * 100), // Convert to cents
+            image: input.image || null,
+            images: input.images || null,
+            category: input.category || null,
+          });
+          return { success: true, message: "Product created successfully" };
+        } catch (error) {
+          console.error("Error creating product:", error);
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to create product'
+          });
+        }
       }),
 
     update: adminProcedure
@@ -81,23 +89,42 @@ export const appRouter = router({
         ...productInputSchema.shape,
       }))
       .mutation(async ({ input }) => {
-        const { id, ...data } = input;
-        await updateProduct(id, {
-          name: data.name,
-          description: data.description || null,
-          price: Math.round(data.price * 100), // Convert to cents
-          image: data.image || null,
-          images: data.images || null,
-          category: data.category || null,
-        });
-        return { success: true, message: "Product updated successfully" };
+        try {
+          const { id, ...data } = input;
+          console.log("Updating product:", { id, data });
+          
+          await updateProduct(id, {
+            name: data.name,
+            description: data.description || null,
+            price: Math.round(data.price * 100),
+            image: data.image || null,
+            images: data.images || null,
+            category: data.category || null,
+          });
+          
+          return { success: true, message: "Product updated successfully" };
+        } catch (error) {
+          console.error("Error updating product:", error);
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to update product'
+          });
+        }
       }),
 
     delete: adminProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
-        await deleteProduct(input.id);
-        return { success: true, message: "Product deleted successfully" };
+        try {
+          await deleteProduct(input.id);
+          return { success: true, message: "Product deleted successfully" };
+        } catch (error) {
+          console.error("Error deleting product:", error);
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to delete product'
+          });
+        }
       }),
 
     uploadImage: adminProcedure
@@ -133,12 +160,20 @@ export const appRouter = router({
     create: adminProcedure
       .input(newsInputSchema)
       .mutation(async ({ input }) => {
-        const result = await createNews({
-          title: input.title,
-          content: input.content || null,
-          image: input.image || null,
-        });
-        return { success: true, message: "News created successfully" };
+        try {
+          const result = await createNews({
+            title: input.title,
+            content: input.content || null,
+            image: input.image || null,
+          });
+          return { success: true, message: "News created successfully" };
+        } catch (error) {
+          console.error("Error creating news:", error);
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to create news'
+          });
+        }
       }),
 
     update: adminProcedure
@@ -147,20 +182,36 @@ export const appRouter = router({
         ...newsInputSchema.shape,
       }))
       .mutation(async ({ input }) => {
-        const { id, ...data } = input;
-        await updateNews(id, {
-          title: data.title,
-          content: data.content || null,
-          image: data.image || null,
-        });
-        return { success: true, message: "News updated successfully" };
+        try {
+          const { id, ...data } = input;
+          await updateNews(id, {
+            title: data.title,
+            content: data.content || null,
+            image: data.image || null,
+          });
+          return { success: true, message: "News updated successfully" };
+        } catch (error) {
+          console.error("Error updating news:", error);
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to update news'
+          });
+        }
       }),
 
     delete: adminProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
-        await deleteNews(input.id);
-        return { success: true, message: "News deleted successfully" };
+        try {
+          await deleteNews(input.id);
+          return { success: true, message: "News deleted successfully" };
+        } catch (error) {
+          console.error("Error deleting news:", error);
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to delete news'
+          });
+        }
       }),
   }),
 });

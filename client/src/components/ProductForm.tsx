@@ -111,20 +111,30 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
   };
 
   const uploadImages = async (): Promise<{ mainImageUrl: string; descriptionImageUrls: string[] }> => {
-    const mainImageUrl = mainImage 
-      ? await uploadImageMutation.mutateAsync({ file: mainImage })
-      : mainImagePreview;
-
-    const descriptionImageUrls: string[] = [];
+    let mainImageUrl = mainImagePreview;
     
-    // Upload new description images
-    for (const file of descriptionImages) {
-      const url = await uploadImageMutation.mutateAsync({ file });
-      descriptionImageUrls.push(url);
+    // Upload main image if new file was selected
+    if (mainImage) {
+      try {
+        mainImageUrl = await uploadImageMutation.mutateAsync({ file: mainImage });
+      } catch (error) {
+        console.error('Error uploading main image:', error);
+        throw new Error('Failed to upload main image');
+      }
     }
 
-    // Add existing description images that weren't removed
-    descriptionImageUrls.push(...descriptionImagePreviews.slice(descriptionImages.length));
+    const descriptionImageUrls: string[] = [...descriptionImagePreviews];
+    
+    // Upload only new description images
+    for (const file of descriptionImages) {
+      try {
+        const url = await uploadImageMutation.mutateAsync({ file });
+        descriptionImageUrls.push(url);
+      } catch (error) {
+        console.error('Error uploading description image:', error);
+        throw new Error('Failed to upload description image');
+      }
+    }
 
     return { mainImageUrl, descriptionImageUrls };
   };
