@@ -49,9 +49,21 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const createMutation = trpc.products.create.useMutation();
-  const updateMutation = trpc.products.update.useMutation();
-  const uploadImageMutation = trpc.products.uploadImage.useMutation();
+  const createMutation = trpc.products.create.useMutation({
+    onError: (error) => {
+      console.error('Create mutation error:', error);
+    }
+  });
+  const updateMutation = trpc.products.update.useMutation({
+    onError: (error) => {
+      console.error('Update mutation error:', error);
+    }
+  });
+  const uploadImageMutation = trpc.products.uploadImage.useMutation({
+    onError: (error) => {
+      console.error('Upload image mutation error:', error);
+    }
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -168,16 +180,22 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
 
       if (product) {
         // Update existing product
-        await updateMutation.mutateAsync({
-          id: product.id,
-          name: formData.name,
-          description: formData.description || undefined,
-          price,
-          image: mainImageUrl,
-          category: formData.category || undefined,
-          images: descriptionImageUrls.length > 0 ? JSON.stringify(descriptionImageUrls) : undefined,
-        });
-        toast.success("Product updated successfully");
+        try {
+          const result = await updateMutation.mutateAsync({
+            id: product.id,
+            name: formData.name,
+            description: formData.description || undefined,
+            price,
+            image: mainImageUrl,
+            category: formData.category || undefined,
+            images: descriptionImageUrls.length > 0 ? JSON.stringify(descriptionImageUrls) : undefined,
+          });
+          console.log('Update result:', result);
+          toast.success("Product updated successfully");
+        } catch (updateError) {
+          console.error('Update error:', updateError);
+          throw updateError;
+        }
       } else {
         // Create new product
         await createMutation.mutateAsync({
@@ -195,7 +213,9 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
       onClose();
     } catch (error) {
       console.error("Error saving product:", error);
-      toast.error("Failed to save product");
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error("Error details:", errorMessage);
+      toast.error(`Failed to save product: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
