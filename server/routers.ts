@@ -175,14 +175,27 @@ export const appRouter = router({
 
     uploadImage: editorProcedure
       .input(z.object({
-        fileData: z.string(), // base64 encoded
+        fileData: z.string().optional(),
+        imageData: z.string().optional(),
         fileName: z.string(),
         fileType: z.string(),
       }))
       .mutation(async ({ input }) => {
         try {
+          // Support both fileData and imageData parameter names
+          const base64Data = input.imageData || input.fileData;
+          if (!base64Data) {
+            throw new Error('No image data provided');
+          }
+
+          // Remove data:image/...;base64, prefix if present
+          let cleanBase64 = base64Data;
+          if (base64Data.includes(',')) {
+            cleanBase64 = base64Data.split(',')[1];
+          }
+          
           // Decode base64 to buffer
-          const buffer = Buffer.from(input.fileData, 'base64');
+          const buffer = Buffer.from(cleanBase64, 'base64');
           
           // Generate unique filename
           const timestamp = Date.now();
@@ -191,6 +204,11 @@ export const appRouter = router({
           
           // Upload to S3
           const { url } = await storagePut(fileKey, buffer, input.fileType);
+          
+          // Validate URL
+          if (!url || typeof url !== 'string' || !url.startsWith('http')) {
+            throw new Error('Invalid URL returned from storage');
+          }
           
           return url;
         } catch (error) {
