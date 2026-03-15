@@ -25,7 +25,13 @@
 - [x] Display news in admin dashboard
 - [x] Add CRUD unit tests
 
-## Phase 3: Enhancement
+## Phase 3: Bug Fixes
+- [x] Fix products not displaying on homepage (fetch from API)
+- [x] Update Home.tsx to use trpc.products.list query
+- [x] Add loading states for products and news
+- [x] Handle empty states when no products/news exist
+
+## Phase 4: Enhancement
 - [ ] Add product images
 - [ ] Add news images
 - [ ] Implement shopping cart functionality

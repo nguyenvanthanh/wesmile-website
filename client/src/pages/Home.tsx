@@ -1,8 +1,10 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Menu, X, ChevronRight } from "lucide-react";
+import { Menu, X, ChevronRight, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { getLoginUrl } from "@/const";
+import { trpc } from "@/lib/trpc";
+import { useLocation } from "wouter";
 
 /**
  * WeSmile Homepage - Modern Professional Healthcare Design
@@ -21,9 +23,35 @@ import { getLoginUrl } from "@/const";
 
 export default function Home() {
   const { user, logout } = useAuth();
+  const [, navigate] = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  // Fetch products and news from API
+  const { data: products = [], isLoading: productsLoading } = trpc.products.list.useQuery();
+  const { data: newsList = [], isLoading: newsLoading } = trpc.news.list.useQuery();
+
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  // Get emoji based on product name
+  const getProductEmoji = (name: string) => {
+    const lowerName = name.toLowerCase();
+    if (lowerName.includes('brush') || lowerName.includes('electric')) return '⚡';
+    if (lowerName.includes('whiten') || lowerName.includes('strip')) return '✨';
+    if (lowerName.includes('floss') || lowerName.includes('water')) return '💧';
+    if (lowerName.includes('kit') || lowerName.includes('pro')) return '🪥';
+    return '😊';
+  };
+
+  // Get gradient colors based on index
+  const getGradientClass = (index: number) => {
+    const gradients = [
+      'from-blue-100 to-cyan-100',
+      'from-teal-100 to-blue-100',
+      'from-cyan-100 to-blue-100',
+      'from-blue-100 to-teal-100',
+    ];
+    return gradients[index % gradients.length];
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -220,75 +248,39 @@ export default function Home() {
             <div className="w-16 h-1 bg-cyan-600 mx-auto mt-4"></div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Product Card 1 */}
-            <a href="/product/1" className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow cursor-pointer block">
-              <div className="bg-gradient-to-br from-blue-100 to-cyan-100 h-48 flex items-center justify-center">
-                <div className="text-5xl">🪥</div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">WeSmile Pro Kit</h3>
-                <p className="text-gray-600 mb-4">Professional whitening and cleaning kit</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-cyan-600">$149</span>
-                  <Button size="sm" className="bg-cyan-600 hover:bg-cyan-700">
-                    Buy
-                  </Button>
-                </div>
-              </div>
-            </a>
-
-            {/* Product Card 2 */}
-            <a href="/product/2" className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow cursor-pointer block">
-              <div className="bg-gradient-to-br from-teal-100 to-blue-100 h-48 flex items-center justify-center">
-                <div className="text-5xl">✨</div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Whitening Strips</h3>
-                <p className="text-gray-600 mb-4">Advanced whitening technology</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-cyan-600">$29</span>
-                  <Button size="sm" className="bg-cyan-600 hover:bg-cyan-700">
-                    Buy
-                  </Button>
-                </div>
-              </div>
-            </a>
-
-            {/* Product Card 3 */}
-            <a href="/product/3" className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow cursor-pointer block">
-              <div className="bg-gradient-to-br from-cyan-100 to-blue-100 h-48 flex items-center justify-center">
-                <div className="text-5xl">💧</div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Water Flosser</h3>
-                <p className="text-gray-600 mb-4">Professional water flossing system</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-cyan-600">$69</span>
-                  <Button size="sm" className="bg-cyan-600 hover:bg-cyan-700">
-                    Buy
-                  </Button>
-                </div>
-              </div>
-            </a>
-
-            {/* Product Card 4 */}
-            <a href="/product/4" className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow cursor-pointer block">
-              <div className="bg-gradient-to-br from-blue-100 to-teal-100 h-48 flex items-center justify-center">
-                <div className="text-5xl">⚡</div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Electric Brush</h3>
-                <p className="text-gray-600 mb-4">Smart electric toothbrush</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-cyan-600">$99</span>
-                  <Button size="sm" className="bg-cyan-600 hover:bg-cyan-700">
-                    Buy
-                  </Button>
-                </div>
-              </div>
-            </a>
-          </div>
+          {productsLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="animate-spin text-cyan-600" size={32} />
+            </div>
+          ) : products.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-600 text-lg">No products available yet.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {products.map((product: any, index: number) => (
+                <button
+                  key={product.id}
+                  onClick={() => navigate(`/product/${product.id}`)}
+                  className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow cursor-pointer block text-left"
+                >
+                  <div className={`bg-gradient-to-br ${getGradientClass(index)} h-48 flex items-center justify-center`}>
+                    <div className="text-5xl">{getProductEmoji(product.name)}</div>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{product.name}</h3>
+                    <p className="text-gray-600 mb-4">{product.description || 'Premium dental care product'}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl font-bold text-cyan-600">${(product.price / 100).toFixed(2)}</span>
+                      <Button size="sm" className="bg-cyan-600 hover:bg-cyan-700">
+                        Buy
+                      </Button>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -347,96 +339,61 @@ export default function Home() {
             <div className="w-16 h-1 bg-cyan-600 mx-auto mt-4"></div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* News Card 1 */}
-            <article className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow">
-              <div className="bg-gradient-to-br from-blue-100 to-cyan-100 h-48 flex items-center justify-center">
-                <div className="text-5xl">📰</div>
-              </div>
-              <div className="p-6">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-semibold text-cyan-600 bg-cyan-50 px-3 py-1 rounded-full">
-                    March 14, 2026
-                  </span>
+          {newsLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="animate-spin text-cyan-600" size={32} />
+            </div>
+          ) : newsList.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-600 text-lg">No news available yet.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {newsList.slice(0, 3).map((newsItem: any) => (
+                <div key={newsItem.id} className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow">
+                  <div className="bg-gradient-to-br from-blue-100 to-cyan-100 h-48 flex items-center justify-center">
+                    {newsItem.image ? (
+                      <img src={newsItem.image} alt={newsItem.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="text-5xl">📰</div>
+                    )}
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{newsItem.title}</h3>
+                    <p className="text-gray-600 mb-4 line-clamp-2">{newsItem.content || 'Latest news from WeSmile'}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-500">
+                        {new Date(newsItem.publishedAt).toLocaleDateString()}
+                      </span>
+                      <Button size="sm" variant="outline" className="text-cyan-600 border-cyan-600 hover:bg-cyan-50">
+                        Read More <ChevronRight size={16} />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
-                  New Whitening Technology Launched
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  WeSmile introduces advanced whitening strips with 40% faster results and improved comfort.
-                </p>
-                <a href="#" className="inline-flex items-center gap-2 text-cyan-600 hover:text-cyan-700 font-semibold">
-                  Read More <ChevronRight size={16} />
-                </a>
-              </div>
-            </article>
-
-            {/* News Card 2 */}
-            <article className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow">
-              <div className="bg-gradient-to-br from-teal-100 to-blue-100 h-48 flex items-center justify-center">
-                <div className="text-5xl">🏆</div>
-              </div>
-              <div className="p-6">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-semibold text-cyan-600 bg-cyan-50 px-3 py-1 rounded-full">
-                    March 10, 2026
-                  </span>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
-                  WeSmile Wins Best Dental Product Award
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  Recognized for innovation and excellence in professional dental care solutions.
-                </p>
-                <a href="#" className="inline-flex items-center gap-2 text-cyan-600 hover:text-cyan-700 font-semibold">
-                  Read More <ChevronRight size={16} />
-                </a>
-              </div>
-            </article>
-
-            {/* News Card 3 */}
-            <article className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow">
-              <div className="bg-gradient-to-br from-cyan-100 to-blue-100 h-48 flex items-center justify-center">
-                <div className="text-5xl">💡</div>
-              </div>
-              <div className="p-6">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-semibold text-cyan-600 bg-cyan-50 px-3 py-1 rounded-full">
-                    March 5, 2026
-                  </span>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
-                  Oral Health Tips from Expert Dentists
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  Learn the best practices for maintaining optimal oral health and a beautiful smile.
-                </p>
-                <a href="#" className="inline-flex items-center gap-2 text-cyan-600 hover:text-cyan-700 font-semibold">
-                  Read More <ChevronRight size={16} />
-                </a>
-              </div>
-            </article>
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
       {/* Newsletter Section */}
-      <section className="py-16 md:py-20 bg-gradient-to-r from-teal-600 to-cyan-600">
+      <section className="py-16 md:py-24 bg-gradient-to-r from-cyan-600 to-teal-600">
         <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center text-white">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Stay Updated with WeSmile
+          <div className="max-w-2xl mx-auto text-center">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              Subscribe to Our Newsletter
             </h2>
-            <p className="text-lg mb-8 opacity-90">
-              Subscribe to our newsletter for exclusive offers, dental tips, and product updates.
+            <p className="text-xl text-white/90 mb-8">
+              Get exclusive tips, product launches, and special offers delivered to your inbox
             </p>
-            <div className="flex flex-col md:flex-row gap-3" style={{marginTop: '5px'}}>
+            <div className="flex gap-3">
               <input 
                 type="email" 
                 placeholder="Enter your email" 
-                className="flex-1 px-6 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white" style={{backgroundColor: '#ffffff'}}
+                className="flex-1 px-6 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white"
               />
-              <Button className="bg-white text-cyan-600 hover:bg-gray-100 px-8 py-3 font-semibold" style={{marginTop: '5px'}}>
+              <Button className="bg-white text-cyan-600 hover:bg-gray-100 px-8 font-semibold">
                 Subscribe
               </Button>
             </div>
@@ -451,40 +408,32 @@ export default function Home() {
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
               Get in Touch
             </h2>
-            <p className="text-xl text-gray-600">We'd love to hear from you</p>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Have questions? We'd love to hear from you
+            </p>
             <div className="w-16 h-1 bg-cyan-600 mx-auto mt-4"></div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Contact Info 1 */}
-            <div className="text-center p-6">
+            <div className="text-center">
               <div className="text-4xl mb-4">📧</div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Email</h3>
-              <p className="text-gray-600">
-                <a href="mailto:support@wesmile.com" className="hover:text-cyan-600 transition-colors">
-                  support@wesmile.com
-                </a>
-              </p>
+              <p className="text-gray-600">support@wesmile.com</p>
             </div>
 
             {/* Contact Info 2 */}
-            <div className="text-center p-6">
-              <div className="text-4xl mb-4">📱</div>
+            <div className="text-center">
+              <div className="text-4xl mb-4">📞</div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Phone</h3>
-              <p className="text-gray-600">
-                <a href="tel:+1-800-WESMILE" className="hover:text-cyan-600 transition-colors">
-                  +1-800-WESMILE
-                </a>
-              </p>
+              <p className="text-gray-600">+1 (800) 123-4567</p>
             </div>
 
             {/* Contact Info 3 */}
-            <div className="text-center p-6">
+            <div className="text-center">
               <div className="text-4xl mb-4">📍</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Address</h3>
-              <p className="text-gray-600">
-                7162 83RD DR E, BRADENTON, FL 34201-2152, USA
-              </p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Location</h3>
+              <p className="text-gray-600">New York, USA</p>
             </div>
           </div>
         </div>
@@ -494,53 +443,37 @@ export default function Home() {
       <footer className="bg-gray-900 text-white py-12">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-            {/* Footer Column 1 */}
             <div>
-              <h4 className="font-bold text-lg mb-4">Products</h4>
+              <h4 className="text-lg font-bold mb-4">WeSmile</h4>
+              <p className="text-gray-400">Advanced American Dental Care</p>
+            </div>
+            <div>
+              <h4 className="text-lg font-bold mb-4">Products</h4>
               <ul className="space-y-2 text-gray-400">
                 <li><a href="#" className="hover:text-white transition-colors">Whitening Kits</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Electric Brushes</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Water Flossers</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Whitening Strips</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Flossing Tools</a></li>
               </ul>
             </div>
-
-            {/* Footer Column 2 */}
             <div>
-              <h4 className="font-bold text-lg mb-4">Company</h4>
+              <h4 className="text-lg font-bold mb-4">Company</h4>
               <ul className="space-y-2 text-gray-400">
                 <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Technology</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Research & Development</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Events</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
               </ul>
             </div>
-
-            {/* Footer Column 3 */}
             <div>
-              <h4 className="font-bold text-lg mb-4">Support</h4>
+              <h4 className="text-lg font-bold mb-4">Follow Us</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">FAQs</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Facebook</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Instagram</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Twitter</a></li>
               </ul>
-            </div>
-
-            {/* Footer Column 4 */}
-            <div>
-              <h4 className="font-bold text-lg mb-4">Follow Us</h4>
-              <div className="flex gap-4">
-                <a href="#" className="text-gray-400 hover:text-white transition-colors text-2xl">f</a>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors text-2xl">𝕏</a>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors text-2xl">in</a>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors text-2xl">▶</a>
-              </div>
             </div>
           </div>
-
           <div className="border-t border-gray-800 pt-8 text-center text-gray-400">
-            <p>&copy; 2026 WeSmile. All rights reserved. Professional oral care, trusted by Americans.</p>
+            <p>&copy; 2026 WeSmile. All rights reserved.</p>
           </div>
         </div>
       </footer>
