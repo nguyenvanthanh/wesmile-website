@@ -47,7 +47,13 @@
 - [x] Update routers to handle image uploads
 - [x] Update Home.tsx and ProductDetail.tsx to display S3 images
 
-## Phase 5: Enhancement
+## Phase 6: Login Page & Navigation
+- [x] Create Login page component
+- [x] Add /login route to App.tsx
+- [x] Remove Login button from navigation bar
+- [x] Test /login route accessibility
+
+## Phase 7: Enhancement
 - [ ] Add news images
 - [ ] Implement shopping cart functionality
 - [ ] Add product filtering/search

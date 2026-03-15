@@ -81,7 +81,7 @@ export default function Home() {
             <a href="#contact" className="text-gray-700 hover:text-cyan-600 transition-colors font-medium">
               Contact
             </a>
-            {user ? (
+            {user && (
               <div className="flex items-center gap-4">
                 <span className="text-gray-700 font-medium">{user.name}</span>
                 {user.role === 'admin' && (
@@ -97,13 +97,6 @@ export default function Home() {
                   Logout
                 </Button>
               </div>
-            ) : (
-              <Button 
-                className="bg-cyan-600 hover:bg-cyan-700 text-white"
-                onClick={() => window.location.href = getLoginUrl()}
-              >
-                Login
-              </Button>
             )}
           </div>
 
@@ -131,7 +124,7 @@ export default function Home() {
             <a href="#contact" className="block text-gray-700 hover:text-cyan-600 transition-colors font-medium py-2">
               Contact
             </a>
-            {user ? (
+            {user && (
               <>
                 {user.role === 'admin' && (
                   <a href="/admin" className="block text-cyan-600 hover:text-cyan-700 font-semibold py-2">
@@ -145,13 +138,6 @@ export default function Home() {
                   Logout
                 </Button>
               </>
-            ) : (
-              <Button 
-                className="w-full bg-cyan-600 hover:bg-cyan-700 text-white mt-2"
-                onClick={() => window.location.href = getLoginUrl()}
-              >
-                Login
-              </Button>
             )}
           </div>
         )}
