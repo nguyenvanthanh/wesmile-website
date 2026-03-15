@@ -129,23 +129,28 @@ export const appRouter = router({
 
     uploadImage: adminProcedure
       .input(z.object({
-        file: z.instanceof(File),
+        fileData: z.string(), // base64 encoded file
+        fileName: z.string(),
+        fileType: z.string(),
       }))
       .mutation(async ({ input }) => {
         try {
-          const buffer = await input.file.arrayBuffer();
-          const fileName = `products/${Date.now()}-${input.file.name}`;
+          console.log('Uploading image:', input.fileName, input.fileType);
+          const buffer = Buffer.from(input.fileData, 'base64');
+          const key = `products/${Date.now()}-${input.fileName}`;
+          console.log('Uploading to S3 with key:', key);
           const { url } = await storagePut(
-            fileName,
-            Buffer.from(buffer),
-            input.file.type
+            key,
+            buffer,
+            input.fileType
           );
+          console.log('Upload successful, URL:', url);
           return url;
         } catch (error) {
-          console.error("Image upload error:", error);
+          console.error('Image upload error:', error);
           throw new TRPCError({
             code: 'INTERNAL_SERVER_ERROR',
-            message: 'Failed to upload image'
+            message: 'Failed to upload image: ' + (error instanceof Error ? error.message : 'Unknown error')
           });
         }
       }),

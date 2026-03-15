@@ -91,21 +91,24 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
   };
 
   const handleDescriptionImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    
-    if (descriptionImages.length + files.length > 8) {
+    const files = e.target.files;
+    if (!files) return;
+
+    const newFiles = Array.from(files);
+    const totalImages = descriptionImages.length + descriptionImagePreviews.length + newFiles.length;
+
+    if (totalImages > 8) {
       toast.error("Maximum 8 description images allowed");
       return;
     }
 
-    files.forEach(file => {
+    newFiles.forEach(file => {
       if (file.size > 5 * 1024 * 1024) {
-        toast.error(`${file.name} is larger than 5MB`);
+        toast.error(`Image ${file.name} is too large (max 5MB)`);
         return;
       }
 
       setDescriptionImages(prev => [...prev, file]);
-      
       const reader = new FileReader();
       reader.onload = (event) => {
         setDescriptionImagePreviews(prev => [...prev, event.target?.result as string]);
@@ -122,13 +125,31 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
     setDescriptionImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
 
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const result = reader.result as string;
+        const base64 = result.split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = error => reject(error);
+    });
+  };
+
   const uploadImages = async (): Promise<{ mainImageUrl: string; descriptionImageUrls: string[] }> => {
     let mainImageUrl = mainImagePreview;
     
     // Upload main image if new file was selected
     if (mainImage) {
       try {
-        mainImageUrl = await uploadImageMutation.mutateAsync({ file: mainImage });
+        const base64Data = await fileToBase64(mainImage);
+        mainImageUrl = await uploadImageMutation.mutateAsync({
+          fileData: base64Data,
+          fileName: mainImage.name,
+          fileType: mainImage.type,
+        });
       } catch (error) {
         console.error('Error uploading main image:', error);
         throw new Error('Failed to upload main image');
@@ -140,7 +161,12 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
     // Upload only new description images
     for (const file of descriptionImages) {
       try {
-        const url = await uploadImageMutation.mutateAsync({ file });
+        const base64Data = await fileToBase64(file);
+        const url = await uploadImageMutation.mutateAsync({
+          fileData: base64Data,
+          fileName: file.name,
+          fileType: file.type,
+        });
         descriptionImageUrls.push(url);
       } catch (error) {
         console.error('Error uploading description image:', error);
@@ -223,25 +249,23 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white">
+      <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold text-gray-900">
             {product ? "Edit Product" : "Add New Product"}
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="text-gray-500 hover:text-gray-700"
           >
             <X size={24} />
           </button>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Product Name */}
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Product Name *
             </label>
             <Input
@@ -249,30 +273,28 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
               name="name"
               value={formData.name}
               onChange={handleChange}
-              placeholder="e.g., WeSmile Pro Kit"
-              className="w-full"
+              placeholder="e.g., Whitening Kit"
               required
             />
           </div>
 
-          {/* Category */}
+          {/* Product Description */}
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Category
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Description
             </label>
-            <Input
-              type="text"
-              name="category"
-              value={formData.category}
+            <Textarea
+              name="description"
+              value={formData.description}
               onChange={handleChange}
-              placeholder="e.g., Whitening, Flossing"
-              className="w-full"
+              placeholder="Product description..."
+              rows={4}
             />
           </div>
 
-          {/* Price */}
+          {/* Product Price */}
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Price (USD) *
             </label>
             <Input
@@ -280,139 +302,114 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
               name="price"
               value={formData.price}
               onChange={handleChange}
-              placeholder="e.g., 149.99"
+              placeholder="0.00"
               step="0.01"
-              min="0"
-              className="w-full"
               required
             />
           </div>
 
-          {/* Main Image Upload */}
+          {/* Product Category */}
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Main Image (Featured) *
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Category
             </label>
-            <div className="space-y-3">
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-cyan-600 transition-colors cursor-pointer">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleMainImageChange}
-                  className="hidden"
-                  id="main-image-input"
-                  required={!mainImagePreview}
-                />
-                <label htmlFor="main-image-input" className="cursor-pointer">
-                  <Upload className="mx-auto mb-2 text-gray-400" size={32} />
-                  <p className="text-gray-600 font-medium">Click to upload main image</p>
-                  <p className="text-xs text-gray-500">PNG, JPG up to 5MB</p>
-                </label>
-              </div>
-
-              {mainImagePreview && (
-                <div className="relative">
-                  <img
-                    src={mainImagePreview}
-                    alt="Main product"
-                    className="w-full h-48 object-cover rounded-lg border border-gray-200"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMainImage(null);
-                      setMainImagePreview("");
-                    }}
-                    className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Description Images Upload */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Description Images (Max 8, Optional)
-            </label>
-            <div className="space-y-3">
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-cyan-600 transition-colors cursor-pointer">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleDescriptionImageChange}
-                  className="hidden"
-                  id="description-images-input"
-                  multiple
-                  disabled={descriptionImagePreviews.length >= 8}
-                />
-                <label 
-                  htmlFor="description-images-input" 
-                  className={`cursor-pointer ${descriptionImagePreviews.length >= 8 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  <Upload className="mx-auto mb-2 text-gray-400" size={32} />
-                  <p className="text-gray-600 font-medium">Click to upload description images</p>
-                  <p className="text-xs text-gray-500">PNG, JPG up to 5MB each</p>
-                </label>
-              </div>
-
-              {descriptionImagePreviews.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600">{descriptionImagePreviews.length}/8 images</p>
-                  <div className="grid grid-cols-2 gap-3">
-                    {descriptionImagePreviews.map((img, index) => (
-                      <div key={index} className="relative group">
-                        <img
-                          src={img}
-                          alt={`Description ${index + 1}`}
-                          className="w-full h-24 object-cover rounded-lg border border-gray-200"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveDescriptionImage(index)}
-                          className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X size={16} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Description
-            </label>
-            <Textarea
-              name="description"
-              value={formData.description}
+            <Input
+              type="text"
+              name="category"
+              value={formData.category}
               onChange={handleChange}
-              placeholder="Enter product description..."
-              rows={5}
-              className="w-full"
+              placeholder="e.g., Whitening"
             />
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-3 justify-end pt-4 border-t border-gray-200">
+          {/* Main Image */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Main Image (Featured) *
+            </label>
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-cyan-500 transition">
+                  <div className="flex flex-col items-center">
+                    <Upload size={24} className="text-gray-400 mb-2" />
+                    <span className="text-sm text-gray-600">Click to upload</span>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleMainImageChange}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+              {mainImagePreview && (
+                <div className="w-24 h-24 rounded-lg overflow-hidden">
+                  <img
+                    src={mainImagePreview}
+                    alt="Main preview"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Description Images */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Description Images ({descriptionImages.length + descriptionImagePreviews.length}/8)
+            </label>
+            <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-cyan-500 transition mb-4">
+              <div className="flex flex-col items-center">
+                <Plus size={24} className="text-gray-400 mb-2" />
+                <span className="text-sm text-gray-600">Click to add images</span>
+              </div>
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleDescriptionImageChange}
+                className="hidden"
+              />
+            </label>
+
+            {/* Description Images Preview */}
+            {descriptionImagePreviews.length > 0 && (
+              <div className="grid grid-cols-4 gap-4">
+                {descriptionImagePreviews.map((preview, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={preview}
+                      alt={`Description ${index + 1}`}
+                      className="w-full h-24 object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveDescriptionImage(index)}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Submit Buttons */}
+          <div className="flex gap-3 pt-6 border-t border-gray-200">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
-              disabled={isLoading}
+              className="flex-1"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              className="bg-cyan-600 hover:bg-cyan-700 text-white"
               disabled={isLoading}
+              className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white"
             >
               {isLoading ? "Saving..." : product ? "Update Product" : "Create Product"}
             </Button>
