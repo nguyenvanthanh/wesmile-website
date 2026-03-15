@@ -59,8 +59,13 @@ export default function ProductDetail() {
   let galleryImages: string[] = [];
   if (product.images) {
     try {
-      galleryImages = JSON.parse(product.images);
-    } catch {
+      const parsed = JSON.parse(product.images);
+      // Ensure it's an array of strings
+      if (Array.isArray(parsed)) {
+        galleryImages = parsed.filter((img: any) => typeof img === 'string' && img.trim().length > 0);
+      }
+    } catch (error) {
+      console.error('Failed to parse product images:', error);
       galleryImages = [];
     }
   }

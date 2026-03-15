@@ -257,7 +257,15 @@ export default function Home() {
                         alt={product.name}
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
+                          const img = e.target as HTMLImageElement;
+                          img.style.display = 'none';
+                          const parent = img.parentElement;
+                          if (parent) {
+                            const emoji = document.createElement('div');
+                            emoji.className = 'text-5xl';
+                            emoji.textContent = getProductEmoji(product.name);
+                            parent.appendChild(emoji);
+                          }
                         }}
                       />
                     ) : null}

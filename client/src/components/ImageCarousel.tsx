@@ -33,15 +33,21 @@ export default function ImageCarousel({ images, title }: ImageCarouselProps) {
     <div className="space-y-4">
       {/* Main Image */}
       <div className="relative bg-gray-100 rounded-lg overflow-hidden aspect-square">
-        <img
-          src={images[currentIndex]}
-          alt={`${title} - Image ${currentIndex + 1}`}
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src =
-              'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect fill="%23f0f0f0" width="400" height="400"/%3E%3Ctext x="200" y="200" font-size="18" fill="%23999" text-anchor="middle" dy=".3em"%3EImage Not Found%3C/text%3E%3C/svg%3E';
-          }}
-        />
+        {images[currentIndex] ? (
+          <img
+            src={images[currentIndex]}
+            alt={`${title} - Image ${currentIndex + 1}`}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src =
+                'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect fill="%23f0f0f0" width="400" height="400"/%3E%3Ctext x="200" y="200" font-size="18" fill="%23999" text-anchor="middle" dy=".3em"%3EImage Not Found%3C/text%3E%3C/svg%3E';
+            }}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gray-200">
+            <p className="text-gray-500">No image available</p>
+          </div>
+        )}
 
         {/* Navigation Arrows */}
         {images.length > 1 && (
