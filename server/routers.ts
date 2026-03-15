@@ -102,12 +102,12 @@ export const appRouter = router({
             images: input.images || null,
             category: input.category || null,
           });
-          return { success: true, message: "Product created successfully" };
+          return result;
         } catch (error) {
           console.error("Error creating product:", error);
           throw new TRPCError({
             code: 'INTERNAL_SERVER_ERROR',
-            message: 'Failed to create product'
+            message: `Failed to create product: ${error instanceof Error ? error.message : 'Unknown error'}`
           });
         }
       }),
@@ -122,21 +122,38 @@ export const appRouter = router({
           const { id, ...data } = input;
           console.log("Updating product:", { id, data });
           
-          await updateProduct(id, {
+          // Build update object with only defined fields
+          const updateData: Record<string, any> = {
             name: data.name,
-            description: data.description || null,
             price: Math.round(data.price * 100),
-            image: data.image || null,
-            images: data.images || null,
-            category: data.category || null,
-          });
+          };
+          
+          // Only include optional fields if they are provided
+          if (data.description !== undefined) {
+            updateData.description = data.description || null;
+          }
+          if (data.image !== undefined) {
+            updateData.image = data.image || null;
+          }
+          if (data.images !== undefined) {
+            updateData.images = data.images || null;
+          }
+          if (data.category !== undefined) {
+            updateData.category = data.category || null;
+          }
+          
+          console.log("Update data:", updateData);
+          
+          const result = await updateProduct(id, updateData);
+          console.log("Update result:", result);
           
           return { success: true, message: "Product updated successfully" };
         } catch (error) {
           console.error("Error updating product:", error);
+          const errorMsg = error instanceof Error ? error.message : 'Unknown error';
           throw new TRPCError({
             code: 'INTERNAL_SERVER_ERROR',
-            message: 'Failed to update product'
+            message: `Failed to update product: ${errorMsg}`
           });
         }
       }),
@@ -146,7 +163,7 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         try {
           await deleteProduct(input.id);
-          return { success: true, message: "Product deleted successfully" };
+          return { success: true };
         } catch (error) {
           console.error("Error deleting product:", error);
           throw new TRPCError({
@@ -158,28 +175,29 @@ export const appRouter = router({
 
     uploadImage: editorProcedure
       .input(z.object({
-        fileData: z.string(), // base64 encoded file
+        fileData: z.string(), // base64 encoded
         fileName: z.string(),
         fileType: z.string(),
       }))
       .mutation(async ({ input }) => {
         try {
-          console.log('Uploading image:', input.fileName, input.fileType);
+          // Decode base64 to buffer
           const buffer = Buffer.from(input.fileData, 'base64');
-          const key = `products/${Date.now()}-${input.fileName}`;
-          console.log('Uploading to S3 with key:', key);
-          const { url } = await storagePut(
-            key,
-            buffer,
-            input.fileType
-          );
-          console.log('Upload successful, URL:', url);
+          
+          // Generate unique filename
+          const timestamp = Date.now();
+          const randomStr = Math.random().toString(36).substring(2, 8);
+          const fileKey = `products/${timestamp}-${randomStr}-${input.fileName}`;
+          
+          // Upload to S3
+          const { url } = await storagePut(fileKey, buffer, input.fileType);
+          
           return url;
         } catch (error) {
-          console.error('Image upload error:', error);
+          console.error("Error uploading image:", error);
           throw new TRPCError({
             code: 'INTERNAL_SERVER_ERROR',
-            message: 'Failed to upload image: ' + (error instanceof Error ? error.message : 'Unknown error')
+            message: `Failed to upload image: ${error instanceof Error ? error.message : 'Unknown error'}`
           });
         }
       }),
@@ -200,7 +218,7 @@ export const appRouter = router({
             content: input.content || null,
             image: input.image || null,
           });
-          return { success: true, message: "News created successfully" };
+          return result;
         } catch (error) {
           console.error("Error creating news:", error);
           throw new TRPCError({
@@ -223,7 +241,7 @@ export const appRouter = router({
             content: data.content || null,
             image: data.image || null,
           });
-          return { success: true, message: "News updated successfully" };
+          return { success: true };
         } catch (error) {
           console.error("Error updating news:", error);
           throw new TRPCError({
@@ -238,7 +256,7 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         try {
           await deleteNews(input.id);
-          return { success: true, message: "News deleted successfully" };
+          return { success: true };
         } catch (error) {
           console.error("Error deleting news:", error);
           throw new TRPCError({
@@ -247,27 +265,45 @@ export const appRouter = router({
           });
         }
       }),
+
+    uploadImage: editorProcedure
+      .input(z.object({
+        fileData: z.string(),
+        fileName: z.string(),
+        fileType: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        try {
+          const buffer = Buffer.from(input.fileData, 'base64');
+          const timestamp = Date.now();
+          const randomStr = Math.random().toString(36).substring(2, 8);
+          const fileKey = `news/${timestamp}-${randomStr}-${input.fileName}`;
+          
+          const { url } = await storagePut(fileKey, buffer, input.fileType);
+          return url;
+        } catch (error) {
+          console.error("Error uploading image:", error);
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to upload image'
+          });
+        }
+      }),
   }),
 
   members: router({
-    // Get all members (super admin only)
     list: superAdminProcedure.query(() => getAllUsers()),
+    getById: superAdminProcedure.input(z.object({ id: z.number() })).query(({ input }) => getUserById(input.id)),
     
-    // Get member by id (super admin only)
-    getById: superAdminProcedure
-      .input(z.object({ id: z.number() }))
-      .query(({ input }) => getUserById(input.id)),
-    
-    // Update member role (super admin only)
     updateRole: superAdminProcedure
       .input(z.object({
         userId: z.number(),
-        memberRole: z.enum(['restricted', 'editor', 'admin', 'super_admin'])
+        memberRole: z.enum(['restricted', 'editor', 'admin', 'super_admin']),
       }))
       .mutation(async ({ input }) => {
         try {
           await updateUserMemberRole(input.userId, input.memberRole);
-          return { success: true, message: "Member role updated successfully" };
+          return { success: true };
         } catch (error) {
           console.error("Error updating member role:", error);
           throw new TRPCError({

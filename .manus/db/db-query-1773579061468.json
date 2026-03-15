@@ -1,0 +1,9 @@
+{
+  "query": "SELECT id, email, name, memberRole FROM users WHERE email = 'thanhnv286@gmail.com';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2kZZZfmqknkRM4m.root --database DXoJFTzPkfdnBKgwYSzYQn --execute SELECT id, email, name, memberRole FROM users WHERE email = 'thanhnv286@gmail.com';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1545
+}

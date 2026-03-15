@@ -1,0 +1,16 @@
+{
+  "query": "SELECT id, email, name, memberRole FROM users LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2kZZZfmqknkRM4m.root --database DXoJFTzPkfdnBKgwYSzYQn --execute SELECT id, email, name, memberRole FROM users LIMIT 10;",
+  "rows": [
+    {
+      "id": "1",
+      "email": "thanhnv.286@gmail.com",
+      "name": "Thành Nguyễn Văn",
+      "memberRole": "super_admin"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\tname\tmemberRole\n1\tthanhnv.286@gmail.com\tThành Nguyễn Văn\tsuper_admin\n",
+  "stderr": "",
+  "execution_time_ms": 1585
+}
