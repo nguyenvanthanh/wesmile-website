@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, products, news } from "../drizzle/schema";
+import { InsertUser, users, products, news, InsertProduct, InsertNews } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -113,6 +113,50 @@ export async function getNewsById(id: number) {
   if (!db) return undefined;
   const result = await db.select().from(news).where(eq(news.id, id)).limit(1);
   return result.length > 0 ? result[0] : undefined;
+}
+
+// Product CRUD operations
+export async function createProduct(product: InsertProduct) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(products).values(product);
+  return result;
+}
+
+export async function updateProduct(id: number, product: Partial<InsertProduct>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.update(products).set(product).where(eq(products.id, id));
+  return result;
+}
+
+export async function deleteProduct(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.delete(products).where(eq(products.id, id));
+  return result;
+}
+
+// News CRUD operations
+export async function createNews(newsItem: InsertNews) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(news).values(newsItem);
+  return result;
+}
+
+export async function updateNews(id: number, newsItem: Partial<InsertNews>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.update(news).set(newsItem).where(eq(news.id, id));
+  return result;
+}
+
+export async function deleteNews(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.delete(news).where(eq(news.id, id));
+  return result;
 }
 
 // TODO: add feature queries here as your schema grows.

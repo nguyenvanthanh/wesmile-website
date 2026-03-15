@@ -14,7 +14,18 @@
 - [x] Create API endpoints for news
 - [x] Add authentication to admin routes
 
-## Phase 2: Enhancement
+## Phase 2: Admin CRUD Features
+- [x] Create product (add form, API endpoint)
+- [x] Update product (edit form, API endpoint)
+- [x] Delete product (API endpoint)
+- [x] Create news (add form, API endpoint)
+- [x] Update news (edit form, API endpoint)
+- [x] Delete news (API endpoint)
+- [x] Display products in admin dashboard
+- [x] Display news in admin dashboard
+- [x] Add CRUD unit tests
+
+## Phase 3: Enhancement
 - [ ] Add product images
 - [ ] Add news images
 - [ ] Implement shopping cart functionality
