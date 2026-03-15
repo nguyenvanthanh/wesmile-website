@@ -30,8 +30,8 @@ export const products = mysqlTable("products", {
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
   price: int("price").notNull(), // Store price in cents
-  image: varchar("image", { length: 512 }),
-  images: text("images"), // JSON array of image URLs (max 9) - stored as JSON string
+  image: text("image"), // Changed from varchar(512) to text to support long S3 URLs
+  images: text("images"), // JSON array of image URLs (max 8) - stored as JSON string
   category: varchar("category", { length: 100 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -49,7 +49,7 @@ export const news = mysqlTable("news", {
   id: int("id").autoincrement().primaryKey(),
   title: varchar("title", { length: 255 }).notNull(),
   content: text("content"),
-  image: varchar("image", { length: 512 }),
+  image: text("image"), // Changed from varchar(512) to text to support long S3 URLs
   publishedAt: timestamp("publishedAt").defaultNow().notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
