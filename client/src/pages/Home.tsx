@@ -245,7 +245,7 @@ export default function Home() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {products.map((product: any, index: number) => (
-                <button
+                <div
                   key={product.id}
                   onClick={() => navigate(`/product/${product.id}`)}
                   className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow cursor-pointer block text-left"
@@ -268,12 +268,12 @@ export default function Home() {
                     <p className="text-gray-600 mb-4">{product.description || 'Premium dental care product'}</p>
                     <div className="flex items-center justify-between">
                       <span className="text-2xl font-bold text-cyan-600">${(product.price / 100).toFixed(2)}</span>
-                      <Button size="sm" className="bg-cyan-600 hover:bg-cyan-700">
+                      <Button size="sm" className="bg-cyan-600 hover:bg-cyan-700" onClick={(e) => e.stopPropagation()}>
                         Buy
                       </Button>
                     </div>
                   </div>
-                </button>
+                </div>
               ))}
             </div>
           )}
