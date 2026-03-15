@@ -55,18 +55,25 @@ export default function ProductDetail() {
 
   const priceInDollars = (product.price / 100).toFixed(2);
 
-  // Parse gallery images
+  // Parse gallery images and add main image at the beginning
   let galleryImages: string[] = [];
+  
+  // Add main image first if it exists
+  if (product.image) {
+    galleryImages.push(product.image);
+  }
+  
+  // Then add description images
   if (product.images) {
     try {
       const parsed = JSON.parse(product.images);
       // Ensure it's an array of strings
       if (Array.isArray(parsed)) {
-        galleryImages = parsed.filter((img: any) => typeof img === 'string' && img.trim().length > 0);
+        const descriptionImages = parsed.filter((img: any) => typeof img === 'string' && img.trim().length > 0);
+        galleryImages = [...galleryImages, ...descriptionImages];
       }
     } catch (error) {
       console.error('Failed to parse product images:', error);
-      galleryImages = [];
     }
   }
 
@@ -101,17 +108,6 @@ export default function ProductDetail() {
               <div>
                 {galleryImages.length > 0 ? (
                   <ImageCarousel images={galleryImages} title={product.name} />
-                ) : product.image ? (
-                  <div className="w-full aspect-square bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl flex items-center justify-center overflow-hidden">
-                    <img 
-                      src={product.image} 
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                  </div>
                 ) : (
                   <div className="w-full aspect-square bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl flex items-center justify-center">
                     <div className="text-6xl">📦</div>

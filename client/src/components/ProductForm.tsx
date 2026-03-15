@@ -31,12 +31,14 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
   // Main image state
   const [mainImage, setMainImage] = useState<File | null>(null);
   const [mainImagePreview, setMainImagePreview] = useState<string>("");
+  const [mainImageUrl, setMainImageUrl] = useState<string>(""); // URL input
   const [existingMainImage, setExistingMainImage] = useState<string>("");
 
   // Description images - SEPARATED CLEARLY
   const [existingDescriptionUrls, setExistingDescriptionUrls] = useState<string[]>([]);
   const [newDescriptionFiles, setNewDescriptionFiles] = useState<File[]>([]);
   const [newDescriptionPreviews, setNewDescriptionPreviews] = useState<string[]>([]);
+  const [newDescriptionUrls, setNewDescriptionUrls] = useState<string[]>([]); // URL inputs for descriptions
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -64,16 +66,20 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
       
       setMainImage(null);
       setMainImagePreview("");
+      setMainImageUrl("");
       setNewDescriptionFiles([]);
       setNewDescriptionPreviews([]);
+      setNewDescriptionUrls([]);
     } else {
       setFormData({ name: "", description: "", price: "", category: "" });
       setExistingMainImage("");
       setExistingDescriptionUrls([]);
       setMainImage(null);
       setMainImagePreview("");
+      setMainImageUrl("");
       setNewDescriptionFiles([]);
       setNewDescriptionPreviews([]);
+      setNewDescriptionUrls([]);
     }
   }, [product]);
 
@@ -107,7 +113,7 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
     if (!files) return;
 
     const newFiles = Array.from(files);
-    const totalImages = existingDescriptionUrls.length + newDescriptionFiles.length + newFiles.length;
+    const totalImages = existingDescriptionUrls.length + newDescriptionFiles.length + newDescriptionUrls.length + newFiles.length;
 
     if (totalImages > 8) {
       toast.error("Maximum 8 description images allowed");
@@ -142,6 +148,11 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
     setNewDescriptionPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
+  // Remove new URL image
+  const handleRemoveNewUrlImage = (index: number) => {
+    setNewDescriptionUrls(prev => prev.filter((_, i) => i !== index));
+  };
+
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -169,8 +180,8 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
           fileType: file.type,
         });
         
-        // Ensure we're adding a valid URL, not a dataURL
-        if (typeof url === 'string' && url.startsWith('http')) {
+        // Ensure we're adding a valid URL (absolute or relative)
+        if (typeof url === 'string' && (url.startsWith('http') || url.startsWith('/'))) {
           descriptionImageUrls.push(url);
         } else {
           throw new Error('Invalid image URL returned from server');
@@ -186,10 +197,12 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
       throw new Error('Too many description images');
     }
 
-    // Ensure no dataURLs
-    const hasDataUrl = descriptionImageUrls.some(url => url.startsWith('data:'));
-    if (hasDataUrl) {
-      throw new Error('Invalid image data detected');
+    // Ensure no dataURLs (only http/https or relative /images/...)
+    const hasInvalidUrl = descriptionImageUrls.some(url => 
+      !url.startsWith('http') && !url.startsWith('/') && !url.startsWith('data:')
+    );
+    if (hasInvalidUrl) {
+      throw new Error('Invalid image URL format detected');
     }
 
     return descriptionImageUrls;
@@ -213,25 +226,29 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
         return;
       }
 
-      if (!mainImage && !existingMainImage) {
-        toast.error("Main image is required");
+      if (!mainImage && !existingMainImage && !mainImageUrl) {
+        toast.error("Main image is required (upload file or enter URL)");
         setIsLoading(false);
         return;
       }
 
-      // Upload main image if new
-      let mainImageUrl = existingMainImage;
+      // Handle main image: URL input, file upload, or existing
+      let finalMainImageUrl = mainImageUrl || existingMainImage;
       if (mainImage) {
         try {
           const base64Data = await fileToBase64(mainImage);
-          mainImageUrl = await uploadImageMutation.mutateAsync({
+          finalMainImageUrl = await uploadImageMutation.mutateAsync({
             fileData: base64Data,
             fileName: mainImage.name,
             fileType: mainImage.type,
           });
 
-          if (!mainImageUrl || typeof mainImageUrl !== 'string' || !mainImageUrl.startsWith('http')) {
+          if (!finalMainImageUrl || typeof finalMainImageUrl !== 'string') {
             throw new Error('Invalid main image URL returned from server');
+          }
+          // Accept both absolute URLs (http/https) and relative URLs (/images/...)
+          if (!finalMainImageUrl.startsWith('http') && !finalMainImageUrl.startsWith('/')) {
+            throw new Error('Invalid main image URL format');
           }
         } catch (error) {
           console.error('Error uploading main image:', error);
@@ -244,6 +261,9 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
       if (existingDescriptionUrls.length > 0 || newDescriptionFiles.length > 0) {
         descriptionImageUrls = await uploadImages();
       }
+      
+      // Add URL-based description images
+      descriptionImageUrls = [...descriptionImageUrls, ...newDescriptionUrls]
 
       if (product) {
         // Update existing product
@@ -252,7 +272,7 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
           name: formData.name,
           description: formData.description || undefined,
           price,
-          image: mainImageUrl,
+          image: finalMainImageUrl,
           category: formData.category || undefined,
           images: descriptionImageUrls.length > 0 ? JSON.stringify(descriptionImageUrls) : undefined,
         });
@@ -263,7 +283,7 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
           name: formData.name,
           description: formData.description || undefined,
           price,
-          image: mainImageUrl,
+          image: finalMainImageUrl,
           category: formData.category || undefined,
           images: descriptionImageUrls.length > 0 ? JSON.stringify(descriptionImageUrls) : undefined,
         });
@@ -281,7 +301,7 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
     }
   };
 
-  const totalDescriptionImages = existingDescriptionUrls.length + newDescriptionFiles.length;
+  const totalDescriptionImages = existingDescriptionUrls.length + newDescriptionFiles.length + newDescriptionUrls.length;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -363,29 +383,56 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Main Image (Featured) *
             </label>
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-cyan-500 transition">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleMainImageChange}
-                    className="hidden"
-                  />
-                  <div className="text-center">
-                    <div className="text-gray-500">Click to upload</div>
+            <div className="space-y-3">
+              {/* Upload File Option */}
+              <div>
+                <p className="text-xs text-gray-500 mb-2">Option 1: Upload File</p>
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-cyan-500 transition">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleMainImageChange}
+                        className="hidden"
+                      />
+                      <div className="text-center">
+                        <div className="text-gray-500">Click to upload</div>
+                      </div>
+                    </label>
                   </div>
-                </label>
-              </div>
-              {(mainImagePreview || existingMainImage) && (
-                <div className="relative w-24 h-24">
-                  <img
-                    src={mainImagePreview || existingMainImage}
-                    alt="Main preview"
-                    className="w-full h-full object-cover rounded-lg"
-                  />
+                  {(mainImagePreview || existingMainImage) && (
+                    <div className="relative w-24 h-24">
+                      <img
+                        src={mainImagePreview || existingMainImage}
+                        alt="Main preview"
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
+              
+              {/* URL Option */}
+              <div>
+                <p className="text-xs text-gray-500 mb-2">Option 2: Image URL</p>
+                <Input
+                  type="url"
+                  value={mainImageUrl}
+                  onChange={(e) => setMainImageUrl(e.target.value)}
+                  placeholder="https://example.com/image.jpg"
+                />
+                {mainImageUrl && (
+                  <div className="mt-2 relative w-24 h-24">
+                    <img
+                      src={mainImageUrl}
+                      alt="URL preview"
+                      className="w-full h-full object-cover rounded-lg"
+                      onError={() => toast.error("Invalid image URL")}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -394,18 +441,57 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Description Images ({totalDescriptionImages}/8)
             </label>
-            <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-cyan-500 transition mb-4">
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleDescriptionImageChange}
-                className="hidden"
-              />
-              <div className="text-center">
-                <div className="text-gray-500">Click to add images</div>
+            
+            {/* Upload Files Option */}
+            <div className="mb-4">
+              <p className="text-xs text-gray-500 mb-2">Option 1: Upload Files</p>
+              <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-cyan-500 transition">
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleDescriptionImageChange}
+                  className="hidden"
+                />
+                <div className="text-center">
+                  <div className="text-gray-500">Click to add images</div>
+                </div>
+              </label>
+            </div>
+
+            {/* Add URLs Option */}
+            <div className="mb-4">
+              <p className="text-xs text-gray-500 mb-2">Option 2: Add Image URLs</p>
+              <div className="flex gap-2">
+                <Input
+                  type="url"
+                  placeholder="https://example.com/image.jpg"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const url = (e.target as HTMLInputElement).value.trim();
+                      if (url && newDescriptionUrls.length < 8) {
+                        setNewDescriptionUrls([...newDescriptionUrls, url]);
+                        (e.target as HTMLInputElement).value = '';
+                      }
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  onClick={() => {
+                    const input = document.querySelector('input[placeholder="https://example.com/image.jpg"]') as HTMLInputElement;
+                    if (input && input.value.trim() && newDescriptionUrls.length < 8) {
+                      setNewDescriptionUrls([...newDescriptionUrls, input.value.trim()]);
+                      input.value = '';
+                    }
+                  }}
+                  className="bg-cyan-600 hover:bg-cyan-700"
+                >
+                  Add
+                </Button>
               </div>
-            </label>
+            </div>
 
             {/* Existing Images */}
             {existingDescriptionUrls.length > 0 && (
@@ -432,13 +518,13 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
               </div>
             )}
 
-            {/* New Images */}
+            {/* New Uploaded Images */}
             {newDescriptionPreviews.length > 0 && (
-              <div>
-                <p className="text-xs text-gray-500 mb-2">New Images</p>
+              <div className="mb-4">
+                <p className="text-xs text-gray-500 mb-2">New Images (to upload)</p>
                 <div className="grid grid-cols-4 gap-2">
                   {newDescriptionPreviews.map((preview, index) => (
-                    <div key={`new-${index}`} className="relative">
+                    <div key={`new-file-${index}`} className="relative">
                       <img
                         src={preview}
                         alt={`New ${index}`}
@@ -456,28 +542,53 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
                 </div>
               </div>
             )}
+
+            {/* New URL Images */}
+            {newDescriptionUrls.length > 0 && (
+              <div className="mb-4">
+                <p className="text-xs text-gray-500 mb-2">New Images from URLs</p>
+                <div className="grid grid-cols-4 gap-2">
+                  {newDescriptionUrls.map((url, index) => (
+                    <div key={`new-url-${index}`} className="relative">
+                      <img
+                        src={url}
+                        alt={`URL ${index}`}
+                        className="w-full h-20 object-cover rounded-lg"
+                        onError={() => {
+                          toast.error(`Invalid URL: ${url}`);
+                          handleRemoveNewUrlImage(index);
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveNewUrlImage(index)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Buttons */}
-          <div className="flex gap-2 justify-end">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              disabled={isLoading}
-            >
-              Cancel
-            </Button>
+          {/* Submit Buttons */}
+          <div className="flex gap-3 pt-4">
             <Button
               type="submit"
-              disabled={isLoading || createMutation.isPending || updateMutation.isPending}
-              className="bg-cyan-600 hover:bg-cyan-700"
+              disabled={isLoading}
+              className="flex-1 bg-cyan-600 hover:bg-cyan-700"
             >
-              {isLoading || createMutation.isPending || updateMutation.isPending
-                ? "Saving..."
-                : product
-                ? "Update Product"
-                : "Add Product"}
+              {isLoading ? "Saving..." : product ? "Update Product" : "Create Product"}
+            </Button>
+            <Button
+              type="button"
+              onClick={onClose}
+              variant="outline"
+              className="flex-1"
+            >
+              Cancel
             </Button>
           </div>
         </form>

@@ -100,3 +100,23 @@ export async function storageGet(relKey: string): Promise<{ key: string; url: st
     url: await buildDownloadUrl(baseUrl, key, apiKey),
   };
 }
+
+// Convert CloudFront URL to S3 URL
+export function convertCloudFrontToS3(cloudFrontUrl: string): string {
+  // CloudFront URL format: https://d2xsxph8kpxj0f.cloudfront.net/projectId/projectName/products/...
+  // S3 URL format: https://manus-webdev-storage.s3.amazonaws.com/projectId/projectName/products/...
+  
+  try {
+    const url = new URL(cloudFrontUrl);
+    // Extract the path part (everything after the domain)
+    const pathname = url.pathname;
+    
+    // Construct S3 URL
+    // S3 bucket name is manus-webdev-storage
+    return `https://manus-webdev-storage.s3.amazonaws.com${pathname}`;
+  } catch (error) {
+    console.error('Error converting CloudFront URL to S3:', error);
+    // Return original URL if conversion fails
+    return cloudFrontUrl;
+  }
+}

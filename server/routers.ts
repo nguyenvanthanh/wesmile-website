@@ -2,7 +2,9 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
-import { storagePut } from "./storage";
+import { storagePut, storageGet } from "./storage";
+import * as fs from 'fs';
+import * as path from 'path';
 import { 
   getProducts, 
   getProductById, 
@@ -200,17 +202,27 @@ export const appRouter = router({
           // Generate unique filename
           const timestamp = Date.now();
           const randomStr = Math.random().toString(36).substring(2, 8);
-          const fileKey = `products/${timestamp}-${randomStr}-${input.fileName}`;
+          const filename = `${timestamp}-${randomStr}-${input.fileName}`;
           
-          // Upload to S3
-          const { url } = await storagePut(fileKey, buffer, input.fileType);
+          // Save to client/public/images/
+          const publicDir = path.join(process.cwd(), 'client', 'public', 'images');
+          const filepath = path.join(publicDir, filename);
           
-          // Validate URL
-          if (!url || typeof url !== 'string' || !url.startsWith('http')) {
-            throw new Error('Invalid URL returned from storage');
+          // Ensure directory exists
+          if (!fs.existsSync(publicDir)) {
+            fs.mkdirSync(publicDir, { recursive: true });
           }
           
-          return url;
+          // Write file
+          fs.writeFileSync(filepath, buffer);
+          
+          console.log('Saved image to:', filepath);
+          
+          // Return relative URL
+          const imageUrl = `/images/${filename}`;
+          console.log('Image URL:', imageUrl);
+          
+          return imageUrl;
         } catch (error) {
           console.error("Error uploading image:", error);
           throw new TRPCError({
