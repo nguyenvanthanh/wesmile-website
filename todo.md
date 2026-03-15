@@ -40,6 +40,13 @@
 - [x] Update ProductDetail.tsx to fetch from database
 - [x] Update related products section to use database
 
+## Phase 5: Product Image Upload
+- [x] Update ProductForm to upload images instead of link input
+- [x] Implement 1 main image (required) + 8 description images (optional)
+- [x] Create image upload API endpoint with S3 storage
+- [x] Update routers to handle image uploads
+- [x] Update Home.tsx and ProductDetail.tsx to display S3 images
+
 ## Phase 5: Enhancement
 - [ ] Add news images
 - [ ] Implement shopping cart functionality

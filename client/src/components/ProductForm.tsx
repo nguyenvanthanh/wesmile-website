@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { X, Plus } from "lucide-react";
+import { X, Plus, Upload } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
@@ -25,11 +25,18 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
     name: product?.name || "",
     description: product?.description || "",
     price: product ? (product.price / 100).toFixed(2) : "",
-    image: product?.image || "",
     category: product?.category || "",
   });
 
-  const [images, setImages] = useState<string[]>(() => {
+  const [mainImage, setMainImage] = useState<File | null>(null);
+  const [mainImagePreview, setMainImagePreview] = useState<string>(product?.image || "");
+  
+  const [descriptionImages, setDescriptionImages] = useState<File[]>(() => {
+    // If editing, we can't restore old images as files, so just start fresh
+    return [];
+  });
+  
+  const [descriptionImagePreviews, setDescriptionImagePreviews] = useState<string[]>(() => {
     if (product?.images) {
       try {
         return JSON.parse(product.images);
@@ -40,11 +47,11 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
     return [];
   });
 
-  const [newImageUrl, setNewImageUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const createMutation = trpc.products.create.useMutation();
   const updateMutation = trpc.products.update.useMutation();
+  const uploadImageMutation = trpc.products.uploadImage.useMutation();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -54,24 +61,72 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
     }));
   };
 
-  const handleAddImage = () => {
-    if (!newImageUrl.trim()) {
-      toast.error("Please enter an image URL");
+  const handleMainImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size must be less than 5MB");
       return;
     }
 
-    if (images.length >= 9) {
-      toast.error("Maximum 9 images allowed");
-      return;
-    }
-
-    setImages(prev => [...prev, newImageUrl.trim()]);
-    setNewImageUrl("");
-    toast.success("Image added");
+    setMainImage(file);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setMainImagePreview(event.target?.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
-  const handleRemoveImage = (index: number) => {
-    setImages(prev => prev.filter((_, i) => i !== index));
+  const handleDescriptionImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    
+    if (descriptionImages.length + files.length > 8) {
+      toast.error("Maximum 8 description images allowed");
+      return;
+    }
+
+    files.forEach(file => {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`${file.name} is larger than 5MB`);
+        return;
+      }
+
+      setDescriptionImages(prev => [...prev, file]);
+      
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setDescriptionImagePreviews(prev => [...prev, event.target?.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Reset input
+    e.target.value = "";
+  };
+
+  const handleRemoveDescriptionImage = (index: number) => {
+    setDescriptionImages(prev => prev.filter((_, i) => i !== index));
+    setDescriptionImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const uploadImages = async (): Promise<{ mainImageUrl: string; descriptionImageUrls: string[] }> => {
+    const mainImageUrl = mainImage 
+      ? await uploadImageMutation.mutateAsync({ file: mainImage })
+      : mainImagePreview;
+
+    const descriptionImageUrls: string[] = [];
+    
+    // Upload new description images
+    for (const file of descriptionImages) {
+      const url = await uploadImageMutation.mutateAsync({ file });
+      descriptionImageUrls.push(url);
+    }
+
+    // Add existing description images that weren't removed
+    descriptionImageUrls.push(...descriptionImagePreviews.slice(descriptionImages.length));
+
+    return { mainImageUrl, descriptionImageUrls };
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -92,6 +147,15 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
         return;
       }
 
+      if (!mainImage && !mainImagePreview) {
+        toast.error("Main image is required");
+        setIsLoading(false);
+        return;
+      }
+
+      // Upload images
+      const { mainImageUrl, descriptionImageUrls } = await uploadImages();
+
       if (product) {
         // Update existing product
         await updateMutation.mutateAsync({
@@ -99,9 +163,9 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
           name: formData.name,
           description: formData.description || undefined,
           price,
-          image: formData.image || undefined,
+          image: mainImageUrl,
           category: formData.category || undefined,
-          images: images.length > 0 ? JSON.stringify(images) : undefined,
+          images: descriptionImageUrls.length > 0 ? JSON.stringify(descriptionImageUrls) : undefined,
         });
         toast.success("Product updated successfully");
       } else {
@@ -110,9 +174,9 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
           name: formData.name,
           description: formData.description || undefined,
           price,
-          image: formData.image || undefined,
+          image: mainImageUrl,
           category: formData.category || undefined,
-          images: images.length > 0 ? JSON.stringify(images) : undefined,
+          images: descriptionImageUrls.length > 0 ? JSON.stringify(descriptionImageUrls) : undefined,
         });
         toast.success("Product created successfully");
       }
@@ -194,71 +258,90 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
             />
           </div>
 
-          {/* Main Image URL */}
+          {/* Main Image Upload */}
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Main Image URL
-            </label>
-            <Input
-              type="url"
-              name="image"
-              value={formData.image}
-              onChange={handleChange}
-              placeholder="https://example.com/image.jpg"
-              className="w-full"
-            />
-          </div>
-
-          {/* Gallery Images */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Gallery Images (Max 9)
+              Main Image (Featured) *
             </label>
             <div className="space-y-3">
-              {/* Add Image Input */}
-              <div className="flex gap-2">
-                <Input
-                  type="url"
-                  value={newImageUrl}
-                  onChange={(e) => setNewImageUrl(e.target.value)}
-                  placeholder="https://example.com/image.jpg"
-                  className="flex-1"
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddImage();
-                    }
-                  }}
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-cyan-600 transition-colors cursor-pointer">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleMainImageChange}
+                  className="hidden"
+                  id="main-image-input"
+                  required={!mainImagePreview}
                 />
-                <Button
-                  type="button"
-                  onClick={handleAddImage}
-                  disabled={images.length >= 9}
-                  className="bg-cyan-600 hover:bg-cyan-700 text-white flex items-center gap-1"
-                >
-                  <Plus size={18} />
-                  Add
-                </Button>
+                <label htmlFor="main-image-input" className="cursor-pointer">
+                  <Upload className="mx-auto mb-2 text-gray-400" size={32} />
+                  <p className="text-gray-600 font-medium">Click to upload main image</p>
+                  <p className="text-xs text-gray-500">PNG, JPG up to 5MB</p>
+                </label>
               </div>
 
-              {/* Images List */}
-              {images.length > 0 && (
+              {mainImagePreview && (
+                <div className="relative">
+                  <img
+                    src={mainImagePreview}
+                    alt="Main product"
+                    className="w-full h-48 object-cover rounded-lg border border-gray-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMainImage(null);
+                      setMainImagePreview("");
+                    }}
+                    className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Description Images Upload */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">
+              Description Images (Max 8, Optional)
+            </label>
+            <div className="space-y-3">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-cyan-600 transition-colors cursor-pointer">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleDescriptionImageChange}
+                  className="hidden"
+                  id="description-images-input"
+                  multiple
+                  disabled={descriptionImagePreviews.length >= 8}
+                />
+                <label 
+                  htmlFor="description-images-input" 
+                  className={`cursor-pointer ${descriptionImagePreviews.length >= 8 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <Upload className="mx-auto mb-2 text-gray-400" size={32} />
+                  <p className="text-gray-600 font-medium">Click to upload description images</p>
+                  <p className="text-xs text-gray-500">PNG, JPG up to 5MB each</p>
+                </label>
+              </div>
+
+              {descriptionImagePreviews.length > 0 && (
                 <div className="space-y-2">
-                  <p className="text-sm text-gray-600">{images.length}/9 images</p>
+                  <p className="text-sm text-gray-600">{descriptionImagePreviews.length}/8 images</p>
                   <div className="grid grid-cols-2 gap-3">
-                    {images.map((img, index) => (
+                    {descriptionImagePreviews.map((img, index) => (
                       <div key={index} className="relative group">
                         <img
                           src={img}
-                          alt={`Gallery ${index + 1}`}
+                          alt={`Description ${index + 1}`}
                           className="w-full h-24 object-cover rounded-lg border border-gray-200"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23f0f0f0" width="100" height="100"/%3E%3Ctext x="50" y="50" font-size="12" fill="%23999" text-anchor="middle" dy=".3em"%3EImage Error%3C/text%3E%3C/svg%3E';
-                          }}
                         />
                         <button
                           type="button"
-                          onClick={() => handleRemoveImage(index)}
+                          onClick={() => handleRemoveDescriptionImage(index)}
                           className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <X size={16} />

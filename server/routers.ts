@@ -2,6 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
+import { storagePut } from "./storage";
 import { 
   getProducts, 
   getProductById, 
@@ -97,6 +98,29 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         await deleteProduct(input.id);
         return { success: true, message: "Product deleted successfully" };
+      }),
+
+    uploadImage: adminProcedure
+      .input(z.object({
+        file: z.instanceof(File),
+      }))
+      .mutation(async ({ input }) => {
+        try {
+          const buffer = await input.file.arrayBuffer();
+          const fileName = `products/${Date.now()}-${input.file.name}`;
+          const { url } = await storagePut(
+            fileName,
+            Buffer.from(buffer),
+            input.file.type
+          );
+          return url;
+        } catch (error) {
+          console.error("Image upload error:", error);
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to upload image'
+          });
+        }
       }),
   }),
 
