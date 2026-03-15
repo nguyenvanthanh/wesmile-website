@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, json } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -31,6 +31,7 @@ export const products = mysqlTable("products", {
   description: text("description"),
   price: int("price").notNull(), // Store price in cents
   image: varchar("image", { length: 512 }),
+  images: text("images"), // JSON array of image URLs (max 9) - stored as JSON string
   category: varchar("category", { length: 100 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -38,6 +39,11 @@ export const products = mysqlTable("products", {
 
 export type Product = typeof products.$inferSelect;
 export type InsertProduct = typeof products.$inferInsert;
+
+// Helper type for product with parsed images
+export type ProductWithImages = Product & {
+  parsedImages?: string[];
+};
 
 export const news = mysqlTable("news", {
   id: int("id").autoincrement().primaryKey(),

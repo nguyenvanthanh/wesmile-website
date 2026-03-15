@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { X } from "lucide-react";
+import { X, Plus } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
@@ -13,6 +13,7 @@ interface ProductFormProps {
     description: string | null;
     price: number;
     image: string | null;
+    images: string | null;
     category: string | null;
   };
   onClose: () => void;
@@ -28,6 +29,18 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
     category: product?.category || "",
   });
 
+  const [images, setImages] = useState<string[]>(() => {
+    if (product?.images) {
+      try {
+        return JSON.parse(product.images);
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  });
+
+  const [newImageUrl, setNewImageUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const createMutation = trpc.products.create.useMutation();
@@ -39,6 +52,26 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handleAddImage = () => {
+    if (!newImageUrl.trim()) {
+      toast.error("Please enter an image URL");
+      return;
+    }
+
+    if (images.length >= 9) {
+      toast.error("Maximum 9 images allowed");
+      return;
+    }
+
+    setImages(prev => [...prev, newImageUrl.trim()]);
+    setNewImageUrl("");
+    toast.success("Image added");
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,6 +101,7 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
           price,
           image: formData.image || undefined,
           category: formData.category || undefined,
+          images: images.length > 0 ? JSON.stringify(images) : undefined,
         });
         toast.success("Product updated successfully");
       } else {
@@ -78,6 +112,7 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
           price,
           image: formData.image || undefined,
           category: formData.category || undefined,
+          images: images.length > 0 ? JSON.stringify(images) : undefined,
         });
         toast.success("Product created successfully");
       }
@@ -159,10 +194,10 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
             />
           </div>
 
-          {/* Image URL */}
+          {/* Main Image URL */}
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Image URL
+              Main Image URL
             </label>
             <Input
               type="url"
@@ -172,6 +207,68 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
               placeholder="https://example.com/image.jpg"
               className="w-full"
             />
+          </div>
+
+          {/* Gallery Images */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">
+              Gallery Images (Max 9)
+            </label>
+            <div className="space-y-3">
+              {/* Add Image Input */}
+              <div className="flex gap-2">
+                <Input
+                  type="url"
+                  value={newImageUrl}
+                  onChange={(e) => setNewImageUrl(e.target.value)}
+                  placeholder="https://example.com/image.jpg"
+                  className="flex-1"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddImage();
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  onClick={handleAddImage}
+                  disabled={images.length >= 9}
+                  className="bg-cyan-600 hover:bg-cyan-700 text-white flex items-center gap-1"
+                >
+                  <Plus size={18} />
+                  Add
+                </Button>
+              </div>
+
+              {/* Images List */}
+              {images.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">{images.length}/9 images</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {images.map((img, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={img}
+                          alt={`Gallery ${index + 1}`}
+                          className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23f0f0f0" width="100" height="100"/%3E%3Ctext x="50" y="50" font-size="12" fill="%23999" text-anchor="middle" dy=".3em"%3EImage Error%3C/text%3E%3C/svg%3E';
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(index)}
+                          className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Description */}

@@ -264,8 +264,18 @@ export default function Home() {
                   onClick={() => navigate(`/product/${product.id}`)}
                   className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow cursor-pointer block text-left"
                 >
-                  <div className={`bg-gradient-to-br ${getGradientClass(index)} h-48 flex items-center justify-center`}>
-                    <div className="text-5xl">{getProductEmoji(product.name)}</div>
+                  <div className={`bg-gradient-to-br ${getGradientClass(index)} h-48 flex items-center justify-center overflow-hidden`}>
+                    {product.image ? (
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    ) : null}
+                    {!product.image && <div className="text-5xl">{getProductEmoji(product.name)}</div>}
                   </div>
                   <div className="p-6">
                     <h3 className="text-xl font-bold text-gray-900 mb-2">{product.name}</h3>

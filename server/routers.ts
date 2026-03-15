@@ -30,6 +30,7 @@ const productInputSchema = z.object({
   description: z.string().optional(),
   price: z.number().positive("Price must be positive"),
   image: z.string().optional(),
+  images: z.string().optional(), // JSON string array
   category: z.string().optional(),
 });
 
@@ -67,6 +68,7 @@ export const appRouter = router({
           description: input.description || null,
           price: Math.round(input.price * 100), // Convert to cents
           image: input.image || null,
+          images: input.images || null,
           category: input.category || null,
         });
         return { success: true, message: "Product created successfully" };
@@ -84,6 +86,7 @@ export const appRouter = router({
           description: data.description || null,
           price: Math.round(data.price * 100), // Convert to cents
           image: data.image || null,
+          images: data.images || null,
           category: data.category || null,
         });
         return { success: true, message: "Product updated successfully" };

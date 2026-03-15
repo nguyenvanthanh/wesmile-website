@@ -15,6 +15,13 @@
       "when": 1773509819874,
       "tag": "0001_safe_timeslip",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1773571324556,
+      "tag": "0002_skinny_supernaut",
+      "breakpoints": true
     }
   ]
 }

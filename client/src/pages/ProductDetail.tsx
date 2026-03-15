@@ -1,8 +1,8 @@
-import { useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import { useLocation } from "wouter";
+import { useLocation, useRoute } from "wouter";
+import ImageCarousel from "@/components/ImageCarousel";
 
 export default function ProductDetail() {
   const [, params] = useRoute("/product/:id");
@@ -13,6 +13,8 @@ export default function ProductDetail() {
     { id: productId! },
     { enabled: !!productId }
   );
+
+  const { data: allProducts = [] } = trpc.products.list.useQuery();
 
   if (!productId) {
     return (
@@ -31,7 +33,7 @@ export default function ProductDetail() {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-600 mx-auto mb-4"></div>
+          <Loader2 className="animate-spin h-12 w-12 text-cyan-600 mx-auto mb-4" />
           <p className="text-gray-600">Loading product...</p>
         </div>
       </div>
@@ -53,6 +55,21 @@ export default function ProductDetail() {
 
   const priceInDollars = (product.price / 100).toFixed(2);
 
+  // Parse gallery images
+  let galleryImages: string[] = [];
+  if (product.images) {
+    try {
+      galleryImages = JSON.parse(product.images);
+    } catch {
+      galleryImages = [];
+    }
+  }
+
+  // Get related products (excluding current product)
+  const relatedProducts = allProducts
+    .filter((p: any) => p.id !== product.id)
+    .slice(0, 3);
+
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation Bar */}
@@ -73,21 +90,28 @@ export default function ProductDetail() {
       {/* Product Detail Section */}
       <section className="py-16 md:py-24 bg-white">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-5xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-              {/* Product Image */}
-              <div className="flex items-center justify-center">
-                <div className="w-full aspect-square bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl flex items-center justify-center">
-                  {product.image ? (
+              {/* Product Images with Carousel */}
+              <div>
+                {galleryImages.length > 0 ? (
+                  <ImageCarousel images={galleryImages} title={product.name} />
+                ) : product.image ? (
+                  <div className="w-full aspect-square bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl flex items-center justify-center overflow-hidden">
                     <img 
                       src={product.image} 
                       alt={product.name}
-                      className="w-full h-full object-cover rounded-xl"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
                     />
-                  ) : (
+                  </div>
+                ) : (
+                  <div className="w-full aspect-square bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl flex items-center justify-center">
                     <div className="text-6xl">📦</div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
 
               {/* Product Info */}
@@ -182,42 +206,57 @@ export default function ProductDetail() {
       </section>
 
       {/* Related Products Section */}
-      <section className="py-16 md:py-24 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Related Products
-            </h2>
-            <div className="w-16 h-1 bg-cyan-600 mx-auto"></div>
-          </div>
+      {relatedProducts.length > 0 && (
+        <section className="py-16 md:py-24 bg-gray-50">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                Related Products
+              </h2>
+              <div className="w-16 h-1 bg-cyan-600 mx-auto"></div>
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Placeholder related products */}
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow">
-                <div className="bg-gradient-to-br from-blue-100 to-cyan-100 h-48 flex items-center justify-center">
-                  <div className="text-5xl">✨</div>
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Related Product {i}</h3>
-                  <p className="text-gray-600 mb-4">Premium dental care solution</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-cyan-600">$49</span>
-                    <Button size="sm" className="bg-cyan-600 hover:bg-cyan-700">
-                      Buy
-                    </Button>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {relatedProducts.map((relatedProduct: any) => (
+                <button
+                  key={relatedProduct.id}
+                  onClick={() => navigate(`/product/${relatedProduct.id}`)}
+                  className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow cursor-pointer block text-left"
+                >
+                  <div className="bg-gradient-to-br from-blue-100 to-cyan-100 h-48 flex items-center justify-center overflow-hidden">
+                    {relatedProduct.image ? (
+                      <img
+                        src={relatedProduct.image}
+                        alt={relatedProduct.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    ) : null}
+                    {!relatedProduct.image && <div className="text-5xl">✨</div>}
                   </div>
-                </div>
-              </div>
-            ))}
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{relatedProduct.name}</h3>
+                    <p className="text-gray-600 mb-4 line-clamp-2">{relatedProduct.description || 'Premium dental care product'}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl font-bold text-cyan-600">${(relatedProduct.price / 100).toFixed(2)}</span>
+                      <Button size="sm" className="bg-cyan-600 hover:bg-cyan-700">
+                        Buy
+                      </Button>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
         <div className="container mx-auto px-4 text-center">
-          <p>&copy; 2026 WeSmile. All rights reserved. Professional oral care, trusted by Americans.</p>
+          <p>&copy; 2026 WeSmile. All rights reserved.</p>
         </div>
       </footer>
     </div>

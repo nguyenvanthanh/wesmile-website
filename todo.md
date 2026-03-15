@@ -31,8 +31,16 @@
 - [x] Add loading states for products and news
 - [x] Handle empty states when no products/news exist
 
-## Phase 4: Enhancement
-- [ ] Add product images
+## Phase 4: Product Images & Gallery
+- [x] Add images column to products table
+- [x] Update ProductForm to accept multiple images (up to 9)
+- [x] Fix product image display on homepage
+- [x] Create image carousel/slide component
+- [x] Add image gallery to product detail page
+- [x] Update ProductDetail.tsx to fetch from database
+- [x] Update related products section to use database
+
+## Phase 5: Enhancement
 - [ ] Add news images
 - [ ] Implement shopping cart functionality
 - [ ] Add product filtering/search
