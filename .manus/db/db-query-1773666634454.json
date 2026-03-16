@@ -1,0 +1,9 @@
+{
+  "query": "SELECT 'product' as type, id, name, image FROM products WHERE image LIKE '%/public/images%'\nUNION ALL\nSELECT 'news' as type, id, title, image FROM news WHERE image LIKE '%/public/images%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2kZZZfmqknkRM4m.root --database DXoJFTzPkfdnBKgwYSzYQn --execute SELECT 'product' as type, id, name, image FROM products WHERE image LIKE '%/public/images%'\nUNION ALL\nSELECT 'news' as type, id, title, image FROM news WHERE image LIKE '%/public/images%';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1509
+}

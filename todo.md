@@ -111,3 +111,12 @@
 - [x] Verify all 35 unit tests pass
 - [x] Confirm database has no test data after running tests
 - [x] Tests no longer pollute production database
+
+## Phase 12: Switch All Image Storage to Local /public/images
+- [x] Audit all code for S3/CDN image references
+- [x] Modify server upload endpoint to save images to /public/images instead of S3
+- [x] Ensure client code references images from /images/ path
+- [x] Update database to use local paths for all product and news images
+- [x] Download hero background image to local
+- [x] Remove storagePut/storageGet imports from routers.ts
+- [x] Test image upload, display, and deletion with local storage

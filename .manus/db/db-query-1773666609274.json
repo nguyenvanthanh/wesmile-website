@@ -1,0 +1,16 @@
+{
+  "query": "SELECT 'product' as type, id, name, image FROM products WHERE image LIKE '%cloudfront%' OR image LIKE '%s3.amazonaws%'\nUNION ALL\nSELECT 'news' as type, id, title, image FROM news WHERE image LIKE '%cloudfront%' OR image LIKE '%s3.amazonaws%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2kZZZfmqknkRM4m.root --database DXoJFTzPkfdnBKgwYSzYQn --execute SELECT 'product' as type, id, name, image FROM products WHERE image LIKE '%cloudfront%' OR image LIKE '%s3.amazonaws%'\nUNION ALL\nSELECT 'news' as type, id, title, image FROM news WHERE image LIKE '%cloudfront%' OR image LIKE '%s3.amazonaws%';",
+  "rows": [
+    {
+      "type": "product",
+      "id": "90001",
+      "name": "Kit Daily",
+      "image": "https://d2xsxph8kpxj0f.cloudfront.net/310519663372810534/DXoJFTzPkfdnBKgwYSzYQn/1773626300282-dss6nq-Daily 01_26879a34.png"
+    }
+  ],
+  "messages": [],
+  "stdout": "type\tid\tname\timage\nproduct\t90001\tKit Daily\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663372810534/DXoJFTzPkfdnBKgwYSzYQn/1773626300282-dss6nq-Daily 01_26879a34.png\n",
+  "stderr": "",
+  "execution_time_ms": 1569
+}

@@ -1,0 +1,30 @@
+{
+  "query": "SELECT id, name, image FROM products;\nSELECT id, title, image FROM news;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2kZZZfmqknkRM4m.root --database DXoJFTzPkfdnBKgwYSzYQn --execute SELECT id, name, image FROM products;\nSELECT id, title, image FROM news;",
+  "rows": [
+    {
+      "id": "60005",
+      "name": "WeSmile Pro Wireless teeth whitening",
+      "image": "/images/1773627903403-ive9qg-Daily 02.png"
+    },
+    {
+      "id": "90001",
+      "name": "Kit Daily",
+      "image": "https://d2xsxph8kpxj0f.cloudfront.net/310519663372810534/DXoJFTzPkfdnBKgwYSzYQn/1773626300282-dss6nq-Daily 01_26879a34.png"
+    },
+    {
+      "id": "id",
+      "name": "title",
+      "image": "image"
+    },
+    {
+      "id": "30001",
+      "name": "Home Teeth Whitening Instructions:",
+      "image": "https://images.squarespace-cdn.com/content/v1/5d7bafb2d4f5e4735f21b5cc/1722970752526-Z28KR9RHHZWAVPL4UYE3/unsplash-image-fmB7IdFjhTM.jpg"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\timage\n60005\tWeSmile Pro Wireless teeth whitening\t/images/1773627903403-ive9qg-Daily 02.png\n90001\tKit Daily\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663372810534/DXoJFTzPkfdnBKgwYSzYQn/1773626300282-dss6nq-Daily 01_26879a34.png\nid\ttitle\timage\n30001\tHome Teeth Whitening Instructions:\thttps://images.squarespace-cdn.com/content/v1/5d7bafb2d4f5e4735f21b5cc/1722970752526-Z28KR9RHHZWAVPL4UYE3/unsplash-image-fmB7IdFjhTM.jpg\n",
+  "stderr": "",
+  "execution_time_ms": 1798
+}

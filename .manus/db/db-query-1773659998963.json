@@ -1,0 +1,22 @@
+{
+  "query": "SELECT id, name, image, LENGTH(image) as image_length FROM products;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2kZZZfmqknkRM4m.root --database DXoJFTzPkfdnBKgwYSzYQn --execute SELECT id, name, image, LENGTH(image) as image_length FROM products;",
+  "rows": [
+    {
+      "id": "60005",
+      "name": "WeSmile Pro Wireless teeth whitening",
+      "image": "/images/1773659890435-jbaqnb-WeSmile Pro 3+1.png",
+      "image_length": "48"
+    },
+    {
+      "id": "90001",
+      "name": "Kit Daily",
+      "image": "https://d2xsxph8kpxj0f.cloudfront.net/310519663372810534/DXoJFTzPkfdnBKgwYSzYQn/1773626300282-dss6nq-Daily 01_26879a34.png",
+      "image_length": "122"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\timage\timage_length\n60005\tWeSmile Pro Wireless teeth whitening\t/images/1773659890435-jbaqnb-WeSmile Pro 3+1.png\t48\n90001\tKit Daily\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663372810534/DXoJFTzPkfdnBKgwYSzYQn/1773626300282-dss6nq-Daily 01_26879a34.png\t122\n",
+  "stderr": "",
+  "execution_time_ms": 1654
+}

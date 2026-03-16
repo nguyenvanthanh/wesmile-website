@@ -2,7 +2,6 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
-import { storagePut, storageGet } from "./storage";
 import * as fs from 'fs';
 import * as path from 'path';
 import { 
@@ -349,13 +348,34 @@ export const appRouter = router({
       }))
       .mutation(async ({ input }) => {
         try {
-          const buffer = Buffer.from(input.fileData, 'base64');
+          // Remove data:image/...;base64, prefix if present
+          let cleanBase64 = input.fileData;
+          if (input.fileData.includes(',')) {
+            cleanBase64 = input.fileData.split(',')[1];
+          }
+          
+          const buffer = Buffer.from(cleanBase64, 'base64');
           const timestamp = Date.now();
           const randomStr = Math.random().toString(36).substring(2, 8);
-          const fileKey = `news/${timestamp}-${randomStr}-${input.fileName}`;
+          const filename = `${timestamp}-${randomStr}-${input.fileName}`;
           
-          const { url } = await storagePut(fileKey, buffer, input.fileType);
-          return url;
+          // Save to client/public/images/
+          const publicDir = path.join(process.cwd(), 'client', 'public', 'images');
+          const filepath = path.join(publicDir, filename);
+          
+          // Ensure directory exists
+          if (!fs.existsSync(publicDir)) {
+            fs.mkdirSync(publicDir, { recursive: true });
+          }
+          
+          // Write file
+          fs.writeFileSync(filepath, buffer);
+          
+          console.log('Saved news image to:', filepath);
+          
+          // Return relative URL
+          const imageUrl = `/images/${filename}`;
+          return imageUrl;
         } catch (error) {
           console.error("Error uploading image:", error);
           throw new TRPCError({

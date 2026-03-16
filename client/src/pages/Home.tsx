@@ -148,7 +148,7 @@ export default function Home() {
         id="home" 
         className="relative py-32 md:py-48 bg-no-repeat overflow-hidden"
         style={{
-          backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663372757773/JV7EzRGXJwgSUcWrLBcMYd/hero-woman-full-face-TXi7WyN7Z5VTszJL8STtyj.webp)',
+          backgroundImage: 'url(/images/hero-woman.webp)',
           backgroundAttachment: 'fixed',
           backgroundPosition: 'right center',
           backgroundSize: 'contain',
