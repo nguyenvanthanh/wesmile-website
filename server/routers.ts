@@ -96,10 +96,14 @@ export const appRouter = router({
       .input(productInputSchema)
       .mutation(async ({ input }) => {
         try {
+          // Ensure price is properly rounded to cents
+          const priceInCents = Math.round(parseFloat(String(input.price)) * 100);
+          console.log('Creating product with price:', { inputPrice: input.price, priceInCents });
+          
           const result = await createProduct({
             name: input.name,
             description: input.description || null,
-            price: Math.round(input.price * 100), // Convert to cents
+            price: priceInCents,
             image: input.image || null,
             images: input.images || null,
             category: input.category || null,
@@ -124,10 +128,14 @@ export const appRouter = router({
           const { id, ...data } = input;
           console.log("Updating product:", { id, data });
           
+          // Ensure price is properly rounded to cents
+          const priceInCents = Math.round(parseFloat(String(data.price)) * 100);
+          console.log('Updating product price:', { inputPrice: data.price, priceInCents });
+          
           // Build update object with only defined fields
           const updateData: Record<string, any> = {
             name: data.name,
-            price: Math.round(data.price * 100),
+            price: priceInCents,
           };
           
           // Only include optional fields if they are provided

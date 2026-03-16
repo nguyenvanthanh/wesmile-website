@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE products SET \n  image = CASE \n    WHEN image LIKE '%WeSmile Pro 3+1%' THEN 'https://d2xsxph8kpxj0f.cloudfront.net/310519663372810534/DXoJFTzPkfdnBKgwYSzYQn/1773588660746-o51hh8-WeSmile Pro 3+1_7dbd84eb.png'\n    WHEN image LIKE '%WS Pro%' THEN 'https://d2xsxph8kpxj0f.cloudfront.net/310519663372810534/DXoJFTzPkfdnBKgwYSzYQn/1773588687037-vdi2ej-WS Pro_5acbcdc6.png'\n    WHEN image LIKE '%Daily 01%' THEN 'https://d2xsxph8kpxj0f.cloudfront.net/310519663372810534/DXoJFTzPkfdnBKgwYSzYQn/1773626300282-dss6nq-Daily 01_26879a34.png'\n    WHEN image LIKE '%Daily 02%' THEN 'https://d2xsxph8kpxj0f.cloudfront.net/310519663372810534/DXoJFTzPkfdnBKgwYSzYQn/1773626300880-2fokx7-Daily 02_75c4bed0.png'\n    ELSE image\n  END\nWHERE image LIKE '/images/%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2kZZZfmqknkRM4m.root --database DXoJFTzPkfdnBKgwYSzYQn --execute UPDATE products SET \n  image = CASE \n    WHEN image LIKE '%WeSmile Pro 3+1%' THEN 'https://d2xsxph8kpxj0f.cloudfront.net/310519663372810534/DXoJFTzPkfdnBKgwYSzYQn/1773588660746-o51hh8-WeSmile Pro 3+1_7dbd84eb.png'\n    WHEN image LIKE '%WS Pro%' THEN 'https://d2xsxph8kpxj0f.cloudfront.net/310519663372810534/DXoJFTzPkfdnBKgwYSzYQn/1773588687037-vdi2ej-WS Pro_5acbcdc6.png'\n    WHEN image LIKE '%Daily 01%' THEN 'https://d2xsxph8kpxj0f.cloudfront.net/310519663372810534/DXoJFTzPkfdnBKgwYSzYQn/1773626300282-dss6nq-Daily 01_26879a34.png'\n    WHEN image LIKE '%Daily 02%' THEN 'https://d2xsxph8kpxj0f.cloudfront.net/310519663372810534/DXoJFTzPkfdnBKgwYSzYQn/1773626300880-2fokx7-Daily 02_75c4bed0.png'\n    ELSE image\n  END\nWHERE image LIKE '/images/%';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1732
+}

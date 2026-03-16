@@ -102,10 +102,11 @@ export default function ProductDetail() {
       {/* Product Detail Section */}
       <section className="py-16 md:py-24 bg-white">
         <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-              {/* Product Images with Carousel */}
-              <div>
+          <div className="max-w-6xl mx-auto">
+            {/* Top Section: Images (left) and Info (right) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
+              {/* Product Images with Carousel - Left Column */}
+              <div className="md:col-span-1">
                 {galleryImages.length > 0 ? (
                   <ImageCarousel images={galleryImages} title={product.name} />
                 ) : (
@@ -115,8 +116,8 @@ export default function ProductDetail() {
                 )}
               </div>
 
-              {/* Product Info */}
-              <div className="flex flex-col justify-center">
+              {/* Product Info - Right Column */}
+              <div className="md:col-span-2 flex flex-col justify-start">
                 <div className="mb-6">
                   {product.category && (
                     <span className="text-xs font-semibold text-cyan-600 bg-cyan-50 px-3 py-1 rounded-full inline-block mb-4">
@@ -134,16 +135,6 @@ export default function ProductDetail() {
                   <p className="text-gray-600 text-sm font-semibold mb-2">PRICE</p>
                   <p className="text-5xl font-bold text-cyan-600">${priceInDollars}</p>
                 </div>
-
-                {/* Description */}
-                {product.description && (
-                  <div className="mb-8">
-                    <p className="text-gray-600 text-sm font-semibold mb-3">DESCRIPTION</p>
-                    <p className="text-gray-700 text-lg leading-relaxed">
-                      {product.description}
-                    </p>
-                  </div>
-                )}
 
                 {/* Features */}
                 <div className="mb-8">
@@ -202,6 +193,69 @@ export default function ProductDetail() {
                 </div>
               </div>
             </div>
+
+            {/* Full Width Description Section */}
+            {product.description && (
+              <div className="border-t border-gray-200 pt-16 mb-16">
+                <p className="text-gray-600 text-sm font-semibold mb-6">DESCRIPTION</p>
+                <style>{`
+                  .product-description {
+                    font-size: 1.125rem;
+                    line-height: 1.8;
+                    color: #374151;
+                  }
+                  .product-description p {
+                    margin-bottom: 1.5rem;
+                  }
+                  .product-description p:last-child {
+                    margin-bottom: 0;
+                  }
+                  .product-description strong {
+                    font-weight: 600;
+                    color: #1f2937;
+                  }
+                  .product-description em {
+                    font-style: italic;
+                  }
+                  .product-description ul {
+                    margin: 1.5rem 0;
+                    padding-left: 2rem;
+                  }
+                  .product-description li {
+                    margin-bottom: 0.75rem;
+                    color: #374151;
+                  }
+                  .product-description ol {
+                    margin: 1.5rem 0;
+                    padding-left: 2rem;
+                  }
+                  .product-description img {
+                    max-width: 100%;
+                    height: auto;
+                    margin: 1.5rem 0;
+                    border-radius: 0.5rem;
+                  }
+                  .product-description h2,
+                  .product-description h3,
+                  .product-description h4 {
+                    font-weight: 600;
+                    color: #1f2937;
+                    margin-top: 1.5rem;
+                    margin-bottom: 1rem;
+                  }
+                  .product-description h2 {
+                    font-size: 1.875rem;
+                  }
+                  .product-description h3 {
+                    font-size: 1.5rem;
+                  }
+                  .product-description h4 {
+                    font-size: 1.25rem;
+                  }
+                `}</style>
+                <div className="product-description max-w-none" dangerouslySetInnerHTML={{ __html: product.description }} />
+              </div>
+            )}
           </div>
         </div>
       </section>

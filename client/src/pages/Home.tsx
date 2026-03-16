@@ -272,8 +272,7 @@ export default function Home() {
                     {!product.image && <div className="text-5xl">{getProductEmoji(product.name)}</div>}
                   </div>
                   <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{product.name}</h3>
-                    <p className="text-gray-600 mb-4">{product.description || 'Premium dental care product'}</p>
+                    <h3 className="text-xl font-bold text-gray-900 mb-4">{product.name}</h3>
                     <div className="flex items-center justify-between">
                       <span className="text-2xl font-bold text-cyan-600">${(product.price / 100).toFixed(2)}</span>
                       <Button size="sm" className="bg-cyan-600 hover:bg-cyan-700" onClick={(e) => e.stopPropagation()}>

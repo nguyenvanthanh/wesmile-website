@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import RichTextEditor from "@/components/RichTextEditor";
 
 interface ProductFormProps {
   product?: {
@@ -339,12 +340,10 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Description
             </label>
-            <Textarea
-              name="description"
+            <RichTextEditor
               value={formData.description}
-              onChange={handleChange}
+              onChange={(value) => setFormData({ ...formData, description: value })}
               placeholder="Product description..."
-              rows={4}
             />
           </div>
 
