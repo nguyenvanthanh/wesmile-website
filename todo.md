@@ -89,3 +89,11 @@
 - [ ] Performance optimization
 - [ ] SEO optimization
 - [ ] Analytics integration
+
+## Phase 9: News Detail Page
+- [x] Create NewsDetail.tsx page to display full news article
+- [x] Add /news/:id route to App.tsx
+- [x] Remove published date from news cards on homepage
+- [x] Add clickable links to news cards (image, title, "Read More" button)
+- [x] Add hover effects and smooth transitions
+- [x] All 37 unit tests pass

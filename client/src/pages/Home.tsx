@@ -353,22 +353,33 @@ export default function Home() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {newsList.slice(0, 3).map((newsItem: any) => (
-                <div key={newsItem.id} className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow">
-                  <div className="bg-gradient-to-br from-blue-100 to-cyan-100 h-48 flex items-center justify-center">
+                <div 
+                  key={newsItem.id} 
+                  className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow cursor-pointer"
+                  onClick={() => navigate(`/news/${newsItem.id}`)}
+                >
+                  <div className="bg-gradient-to-br from-blue-100 to-cyan-100 h-48 flex items-center justify-center overflow-hidden">
                     {newsItem.image ? (
-                      <img src={newsItem.image} alt={newsItem.title} className="w-full h-full object-cover" />
+                      <img src={newsItem.image} alt={newsItem.title} className="w-full h-full object-cover hover:scale-105 transition-transform" />
                     ) : (
                       <div className="text-5xl">📰</div>
                     )}
                   </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{newsItem.title}</h3>
-                    <p className="text-gray-600 mb-4 line-clamp-2">{newsItem.content || 'Latest news from WeSmile'}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">
-                        {new Date(newsItem.publishedAt).toLocaleDateString()}
-                      </span>
-                      <Button size="sm" variant="outline" className="text-cyan-600 border-cyan-600 hover:bg-cyan-50">
+                  <div className="p-6 flex flex-col h-full">
+                    <h3 
+                      className="text-xl font-bold text-gray-900 mb-2 cursor-pointer hover:text-cyan-600 transition-colors"
+                      onClick={() => navigate(`/news/${newsItem.id}`)}
+                    >
+                      {newsItem.title}
+                    </h3>
+                    <p className="text-gray-600 mb-4 line-clamp-2 flex-grow">{newsItem.content || 'Latest news from WeSmile'}</p>
+                    <div className="flex justify-end">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="text-cyan-600 border-cyan-600 hover:bg-cyan-50"
+                        onClick={() => navigate(`/news/${newsItem.id}`)}
+                      >
                         Read More <ChevronRight size={16} />
                       </Button>
                     </div>
