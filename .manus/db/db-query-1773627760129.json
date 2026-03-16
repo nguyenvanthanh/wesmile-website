@@ -1,0 +1,16 @@
+{
+  "query": "SELECT id, name, image, images FROM products WHERE id = 90001;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2kZZZfmqknkRM4m.root --database DXoJFTzPkfdnBKgwYSzYQn --execute SELECT id, name, image, images FROM products WHERE id = 90001;",
+  "rows": [
+    {
+      "id": "90001",
+      "name": "Kit Daily",
+      "image": "https://d2xsxph8kpxj0f.cloudfront.net/310519663372810534/DXoJFTzPkfdnBKgwYSzYQn/1773626300282-dss6nq-Daily 01_26879a34.png",
+      "images": "[\"/images/1773627100095-0pfj1o-Daily 02.png\"]"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\timage\timages\n90001\tKit Daily\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663372810534/DXoJFTzPkfdnBKgwYSzYQn/1773626300282-dss6nq-Daily 01_26879a34.png\t[\"/images/1773627100095-0pfj1o-Daily 02.png\"]\n",
+  "stderr": "",
+  "execution_time_ms": 1549
+}
