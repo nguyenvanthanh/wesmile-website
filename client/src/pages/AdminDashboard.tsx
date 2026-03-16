@@ -28,8 +28,8 @@ export default function AdminDashboard() {
   const deleteProductMutation = trpc.products.delete.useMutation();
   const deleteNewsMutation = trpc.news.delete.useMutation();
 
-  // Redirect if not admin
-  if (!user || user.role !== "admin") {
+  // Redirect if not admin/editor/super_admin
+  if (!user || !['admin', 'editor', 'super_admin'].includes(user.memberRole)) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
@@ -54,6 +54,13 @@ export default function AdminDashboard() {
       </div>
     );
   }
+
+  // Check permissions
+  const canManageProducts = ['admin', 'super_admin'].includes(user.memberRole);
+  const canManageNews = ['admin', 'editor', 'super_admin'].includes(user.memberRole);
+  const canDeleteProducts = ['admin', 'super_admin'].includes(user.memberRole);
+  const canDeleteNews = ['admin', 'super_admin'].includes(user.memberRole);
+  const canManageMembers = user.memberRole === 'super_admin';
 
   const handleDeleteProduct = async (id: number) => {
     if (!confirm("Are you sure you want to delete this product?")) return;
@@ -133,16 +140,16 @@ export default function AdminDashboard() {
       {/* Admin Content */}
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
-            <TabsTrigger value="products">Products</TabsTrigger>
-            <TabsTrigger value="news">News</TabsTrigger>
-            {user?.memberRole === 'super_admin' && (
+          <TabsList className={`grid w-full ${canManageMembers ? 'grid-cols-3' : 'grid-cols-2'} mb-8`}>
+            {canManageProducts && <TabsTrigger value="products">Products</TabsTrigger>}
+            {canManageNews && <TabsTrigger value="news">News</TabsTrigger>}
+            {canManageMembers && (
               <TabsTrigger value="members">Members</TabsTrigger>
             )}
           </TabsList>
 
           {/* Products Tab */}
-          <TabsContent value="products" className="space-y-6">
+          {canManageProducts && <TabsContent value="products" className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-3xl font-bold text-gray-900">Products</h2>
@@ -199,16 +206,18 @@ export default function AdminDashboard() {
                             <Edit2 size={16} />
                             Edit
                           </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            className="text-red-600 hover:text-red-700 flex items-center gap-1"
-                            onClick={() => handleDeleteProduct(product.id)}
-                            disabled={deleteProductMutation.isPending}
-                          >
-                            <Trash2 size={16} />
-                            Delete
-                          </Button>
+                          {canDeleteProducts && (
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              className="text-red-600 hover:text-red-700 flex items-center gap-1"
+                              onClick={() => handleDeleteProduct(product.id)}
+                              disabled={deleteProductMutation.isPending}
+                            >
+                              <Trash2 size={16} />
+                              Delete
+                            </Button>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -216,7 +225,7 @@ export default function AdminDashboard() {
                 </table>
               </div>
             )}
-          </TabsContent>
+          </TabsContent>}
 
           {/* Members Tab - Only for Super Admin */}
           {user?.memberRole === 'super_admin' && (
@@ -226,7 +235,7 @@ export default function AdminDashboard() {
           )}
 
           {/* News Tab */}
-          <TabsContent value="news" className="space-y-6">
+          {canManageNews && <TabsContent value="news" className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-3xl font-bold text-gray-900">News</h2>
@@ -283,16 +292,18 @@ export default function AdminDashboard() {
                             <Edit2 size={16} />
                             Edit
                           </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            className="text-red-600 hover:text-red-700 flex items-center gap-1"
-                            onClick={() => handleDeleteNews(newsItem.id)}
-                            disabled={deleteNewsMutation.isPending}
-                          >
-                            <Trash2 size={16} />
-                            Delete
-                          </Button>
+                          {canDeleteNews && (
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              className="text-red-600 hover:text-red-700 flex items-center gap-1"
+                              onClick={() => handleDeleteNews(newsItem.id)}
+                              disabled={deleteNewsMutation.isPending}
+                            >
+                              <Trash2 size={16} />
+                              Delete
+                            </Button>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -300,7 +311,7 @@ export default function AdminDashboard() {
                 </table>
               </div>
             )}
-          </TabsContent>
+          </TabsContent>}
         </Tabs>
       </div>
 

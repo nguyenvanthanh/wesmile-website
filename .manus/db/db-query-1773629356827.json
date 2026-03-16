@@ -1,0 +1,15 @@
+{
+  "query": "SELECT id, name, image FROM products WHERE image LIKE '%1773628750559%' OR image LIKE '%1773628752225%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2kZZZfmqknkRM4m.root --database DXoJFTzPkfdnBKgwYSzYQn --execute SELECT id, name, image FROM products WHERE image LIKE '%1773628750559%' OR image LIKE '%1773628752225%';",
+  "rows": [
+    {
+      "id": "60005",
+      "name": "WeSmile Pro Wireless teeth whitening",
+      "image": "/images/1773628750559-z8vny1-WeSmile Pro 3+1.png"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\timage\n60005\tWeSmile Pro Wireless teeth whitening\t/images/1773628750559-z8vny1-WeSmile Pro 3+1.png\n",
+  "stderr": "",
+  "execution_time_ms": 1584
+}

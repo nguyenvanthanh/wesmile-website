@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE products SET image = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663372810534/DXoJFTzPkfdnBKgwYSzYQn/1773628750559-z8vny1-WeSmile Pro 3+1_327b45f8.png' WHERE image LIKE '%1773628750559%';\nUPDATE products SET image = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663372810534/DXoJFTzPkfdnBKgwYSzYQn/1773628752225-bxp4qe-WS Pro_c66cc183.png' WHERE image LIKE '%1773628752225%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2kZZZfmqknkRM4m.root --database DXoJFTzPkfdnBKgwYSzYQn --execute UPDATE products SET image = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663372810534/DXoJFTzPkfdnBKgwYSzYQn/1773628750559-z8vny1-WeSmile Pro 3+1_327b45f8.png' WHERE image LIKE '%1773628750559%';\nUPDATE products SET image = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663372810534/DXoJFTzPkfdnBKgwYSzYQn/1773628752225-bxp4qe-WS Pro_c66cc183.png' WHERE image LIKE '%1773628752225%';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1735
+}

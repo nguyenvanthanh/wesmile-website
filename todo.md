@@ -59,8 +59,12 @@
 - [x] Create API endpoints for managing members
 - [x] Implement permission checking for CRUD operations
 - [x] Add role-based access control (RBAC)
-- [ ] Set super admin for thanhnv286@gmail.com (manual database update)
-- [ ] Test permission system with unit tests
+- [x] Set super admin for thanhnv286@gmail.com (manual database update)
+- [x] Test permission system with unit tests
+- [x] Enforce RBAC in AdminDashboard UI (hide/show tabs and buttons based on role)
+- [x] Editor role can only manage news
+- [x] Admin role can manage products and news (with delete)
+- [x] Super Admin role can manage everything including members
 
 ## Phase 7: Enhancement
 - [ ] Add news images
