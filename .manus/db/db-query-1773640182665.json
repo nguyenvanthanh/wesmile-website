@@ -1,0 +1,18 @@
+{
+  "query": "SELECT id, name, description, price, category, image FROM products WHERE id = 60005;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2kZZZfmqknkRM4m.root --database DXoJFTzPkfdnBKgwYSzYQn --execute SELECT id, name, description, price, category, image FROM products WHERE id = 60005;",
+  "rows": [
+    {
+      "id": "60005",
+      "name": "WeSmile Pro Wireless teeth whitening",
+      "description": "<p>WeSmile Pro is a wireless teeth whitening kit designed to make at-home whitening simple, comfortable, and effective. By combining LED light technology with an ergonomically shaped mouthpiece, it helps remove surface stains while fitting naturally to the shape of your teeth for a more comfortable whitening experience.</p><p></p><p>Each kit includes the LED light device, whitening pens, a results chart, and an instruction manual, giving you everything you need for a guided whitening routine at home. Simply apply a thin, even layer of gel, place the mouthpiece in your mouth, and turn on the light. WeSmile Pro offers two treatment options — 15 minutes in Blue Mode or 10 minutes in Blue &amp; Red Mode — so it can easily fit into your daily routine.</p><p></p><p>The formula includes ingredients such as sodium bicarbonate, aloe barbadensis leaf juice, menthol, pomegranate fruit extract, and sodium chlorite. After treatment, users are advised to avoid eating or drinking anything except water for 30 minutes for the best experience.</p><p></p>",
+      "price": "4900",
+      "category": "Kit teeth whitening",
+      "image": "https://d2xsxph8kpxj0f.cloudfront.net/310519663372810534/DXoJFTzPkfdnBKgwYSzYQn/1773637553187-xb29ct-WeSmile Pro 3+1_e12e7ce7.png"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tdescription\tprice\tcategory\timage\n60005\tWeSmile Pro Wireless teeth whitening\t<p>WeSmile Pro is a wireless teeth whitening kit designed to make at-home whitening simple, comfortable, and effective. By combining LED light technology with an ergonomically shaped mouthpiece, it helps remove surface stains while fitting naturally to the shape of your teeth for a more comfortable whitening experience.</p><p></p><p>Each kit includes the LED light device, whitening pens, a results chart, and an instruction manual, giving you everything you need for a guided whitening routine at home. Simply apply a thin, even layer of gel, place the mouthpiece in your mouth, and turn on the light. WeSmile Pro offers two treatment options — 15 minutes in Blue Mode or 10 minutes in Blue &amp; Red Mode — so it can easily fit into your daily routine.</p><p></p><p>The formula includes ingredients such as sodium bicarbonate, aloe barbadensis leaf juice, menthol, pomegranate fruit extract, and sodium chlorite. After treatment, users are advised to avoid eating or drinking anything except water for 30 minutes for the best experience.</p><p></p>\t4900\tKit teeth whitening\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663372810534/DXoJFTzPkfdnBKgwYSzYQn/1773637553187-xb29ct-WeSmile Pro 3+1_e12e7ce7.png\n",
+  "stderr": "",
+  "execution_time_ms": 1567
+}
