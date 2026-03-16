@@ -172,6 +172,35 @@ export const appRouter = router({
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
         try {
+          // Get product to find associated images
+          const product = await getProductById(input.id);
+          if (product) {
+            // Delete main image
+            if (product.image && product.image.startsWith('/images/')) {
+              const imagePath = path.join(process.cwd(), 'client/public', product.image);
+              if (fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath);
+              }
+            }
+            // Delete description images
+            if (product.images) {
+              try {
+                const images = JSON.parse(product.images);
+                if (Array.isArray(images)) {
+                  images.forEach((img: string) => {
+                    if (img && img.startsWith('/images/')) {
+                      const imagePath = path.join(process.cwd(), 'client/public', img);
+                      if (fs.existsSync(imagePath)) {
+                        fs.unlinkSync(imagePath);
+                      }
+                    }
+                  });
+                }
+              } catch (e) {
+                // Ignore JSON parse errors
+              }
+            }
+          }
           await deleteProduct(input.id);
           return { success: true };
         } catch (error) {
@@ -293,6 +322,14 @@ export const appRouter = router({
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
         try {
+          // Get news to find associated image
+          const news = await getNewsById(input.id);
+          if (news && news.image && news.image.startsWith('/images/')) {
+            const imagePath = path.join(process.cwd(), 'client/public', news.image);
+            if (fs.existsSync(imagePath)) {
+              fs.unlinkSync(imagePath);
+            }
+          }
           await deleteNews(input.id);
           return { success: true };
         } catch (error) {
