@@ -65,6 +65,8 @@
 - [x] Editor role can only manage news
 - [x] Admin role can manage products and news (with delete)
 - [x] Super Admin role can manage everything including members
+- [x] Fix role update not refreshing on UI (refetch members list and auth.me query)
+- [x] Add warning message when updating own role
 
 ## Phase 7: Enhancement
 - [ ] Add news images

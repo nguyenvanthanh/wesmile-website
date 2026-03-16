@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -23,11 +24,13 @@ const ROLE_DESCRIPTIONS: Record<MemberRole, string> = {
 };
 
 export default function MembersManagement() {
+  const { user } = useAuth();
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
   const [selectedRole, setSelectedRole] = useState<MemberRole>("restricted");
 
   // Fetch all members
-  const { data: members, isLoading, error } = trpc.members.list.useQuery();
+  const { data: members, isLoading, error, refetch } = trpc.members.list.useQuery();
+  const utils = trpc.useUtils();
   
   // Update member role mutation
   const updateRoleMutation = trpc.members.updateRole.useMutation({
@@ -35,6 +38,10 @@ export default function MembersManagement() {
       toast.success("Member role updated successfully");
       setSelectedMemberId(null);
       setSelectedRole("restricted");
+      // Refetch members list to show updated role
+      refetch();
+      // Also invalidate auth.me query so user sees their own updated role
+      utils.auth.me.invalidate();
     },
     onError: (error) => {
       toast.error(`Failed to update role: ${error.message}`);
@@ -180,6 +187,11 @@ export default function MembersManagement() {
                 Cancel
               </Button>
             </div>
+            {selectedMemberId === user?.id && (
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+                Info: You are updating your own role. The change will take effect after you refresh the page.
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
