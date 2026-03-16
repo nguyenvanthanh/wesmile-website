@@ -292,8 +292,7 @@ export default function ProductDetail() {
                     {!relatedProduct.image && <div className="text-5xl">✨</div>}
                   </div>
                   <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{relatedProduct.name}</h3>
-                    <p className="text-gray-600 mb-4 line-clamp-2">{relatedProduct.description || 'Premium dental care product'}</p>
+                    <h3 className="text-xl font-bold text-gray-900 mb-4">{relatedProduct.name}</h3>
                     <div className="flex items-center justify-between">
                       <span className="text-2xl font-bold text-cyan-600">${(relatedProduct.price / 100).toFixed(2)}</span>
                       <Button size="sm" className="bg-cyan-600 hover:bg-cyan-700" onClick={(e) => e.stopPropagation()}>
