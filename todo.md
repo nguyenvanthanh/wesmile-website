@@ -103,3 +103,11 @@
 - [x] Update phone to +1 (773) 237-8855
 - [x] Update address to 7162 83RD DR E BRADENTON, FL 34201-2152, USA
 - [x] Change "Whitening Kits" to "Whitening Products" in footer
+
+## Phase 11: Fix Unit Tests to Use Mocks
+- [x] Replace direct database calls with mocks in unit tests
+- [x] Use vi.mock() to mock the db module
+- [x] Mock database responses for all CRUD operations
+- [x] Verify all 35 unit tests pass
+- [x] Confirm database has no test data after running tests
+- [x] Tests no longer pollute production database
