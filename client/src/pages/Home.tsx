@@ -394,9 +394,9 @@ export default function Home() {
               <input 
                 type="email" 
                 placeholder="Enter your email" 
-                className="flex-1 px-6 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white"
+                className="flex-1 px-6 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white" style={{backgroundColor: '#ffffff'}}
               />
-              <Button className="bg-white text-cyan-600 hover:bg-gray-100 px-8 font-semibold">
+              <Button className="bg-white text-cyan-600 hover:bg-gray-100 px-8 font-semibold" style={{marginTop: '5px'}}>
                 Subscribe
               </Button>
             </div>
