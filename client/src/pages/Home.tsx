@@ -433,21 +433,21 @@ export default function Home() {
             <div className="text-center">
               <div className="text-4xl mb-4">📧</div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Email</h3>
-              <p className="text-gray-600">support@wesmile.com</p>
+              <p className="text-gray-600">support@wesmilecare.com</p>
             </div>
 
             {/* Contact Info 2 */}
             <div className="text-center">
               <div className="text-4xl mb-4">📞</div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Phone</h3>
-              <p className="text-gray-600">+1 (800) 123-4567</p>
+              <p className="text-gray-600">+1 (773) 237-8855</p>
             </div>
 
             {/* Contact Info 3 */}
             <div className="text-center">
               <div className="text-4xl mb-4">📍</div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Location</h3>
-              <p className="text-gray-600">New York, USA</p>
+              <p className="text-gray-600">Address: 7162 83RD DR E BRADENTON, FL 34201-2152, USA</p>
             </div>
           </div>
         </div>
@@ -464,7 +464,7 @@ export default function Home() {
             <div>
               <h4 className="text-lg font-bold mb-4">Products</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Whitening Kits</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Whitening Products</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Electric Brushes</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Flossing Tools</a></li>
               </ul>
