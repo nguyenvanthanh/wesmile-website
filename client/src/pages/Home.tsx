@@ -172,10 +172,10 @@ export default function Home() {
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-2xl">
             <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight mb-6">
-              The Science<br />Behind the Smile
+              WeSmile Teeth Whitening<br />The Science Behind the Smile
             </h1>
             <p className="text-xl md:text-2xl text-white/90 leading-relaxed mb-8">
-              Advanced American Dental Care trusted by dentists and patients worldwide.
+              Professional WeSmile Kit for advanced at-home teeth whitening. Trusted by dentists and patients worldwide.
             </p>
             <div className="flex gap-4 pt-4">
               <Button className="bg-cyan-600 hover:bg-cyan-700 text-white px-8 py-6 text-lg font-semibold">
@@ -210,7 +210,7 @@ export default function Home() {
                   <h3 className="text-2xl font-bold text-gray-900">Vision</h3>
                 </div>
                 <p className="text-gray-700 leading-relaxed">
-                  To provide professional dental care solutions that are trusted by dentists and loved by patients worldwide. We believe in making premium oral care accessible to everyone.
+                  To make WeSmile the most trusted name in teeth whitening. We provide professional dental care solutions loved by dentists and patients worldwide, making premium WeSmile teeth whitening accessible to everyone.
                 </p>
               </div>
 
@@ -223,7 +223,7 @@ export default function Home() {
                   <h3 className="text-2xl font-bold text-gray-900">Mission</h3>
                 </div>
                 <p className="text-gray-700 leading-relaxed">
-                  To deliver innovative, science-backed dental products that empower individuals to achieve their best smile. Our commitment is to excellence, quality, and customer satisfaction.
+                  To deliver innovative, science-backed WeSmile teeth whitening products that empower individuals to achieve their best smile. Every WeSmile Kit is designed with excellence, quality, and customer satisfaction in mind.
                 </p>
               </div>
             </div>
@@ -236,10 +236,10 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Premium Products
+              WeSmile Teeth Whitening Products
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Professional-grade dental care products designed for optimal results
+              Shop the WeSmile Kit and professional-grade teeth whitening products designed for optimal results
             </p>
             <div className="w-16 h-1 bg-cyan-600 mx-auto mt-4"></div>
           </div>
@@ -471,7 +471,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
               <h4 className="text-lg font-bold mb-4">WeSmile</h4>
-              <p className="text-gray-400">Advanced American Dental Care</p>
+              <p className="text-gray-400">Professional WeSmile teeth whitening kits and dental care products. The trusted WeSmile Kit for at-home whitening.</p>
             </div>
             <div>
               <h4 className="text-lg font-bold mb-4">Products</h4>
