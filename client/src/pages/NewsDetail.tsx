@@ -71,6 +71,8 @@ export default function NewsDetail() {
               <img 
                 src={newsItem.image} 
                 alt={newsItem.title} 
+                loading="lazy"
+                decoding="async"
                 className="w-full h-96 object-cover"
               />
             </div>

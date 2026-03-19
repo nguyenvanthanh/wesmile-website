@@ -257,14 +257,17 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
         }
       }
 
-      // Upload description images
+      // Upload description images (file uploads + existing URLs)
       let descriptionImageUrls: string[] = [];
       if (existingDescriptionUrls.length > 0 || newDescriptionFiles.length > 0) {
         descriptionImageUrls = await uploadImages();
       }
       
-      // Add URL-based description images
-      descriptionImageUrls = [...descriptionImageUrls, ...newDescriptionUrls]
+      // Add URL-based description images (from URL input)
+      descriptionImageUrls = [...descriptionImageUrls, ...newDescriptionUrls];
+
+      // Always send images field (even empty array) to ensure old data gets cleared
+      const imagesJson = JSON.stringify(descriptionImageUrls);
 
       if (product) {
         // Update existing product
@@ -275,7 +278,7 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
           price,
           image: finalMainImageUrl,
           category: formData.category || undefined,
-          images: descriptionImageUrls.length > 0 ? JSON.stringify(descriptionImageUrls) : undefined,
+          images: imagesJson,
         });
         toast.success("Product updated successfully");
       } else {
@@ -286,7 +289,7 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
           price,
           image: finalMainImageUrl,
           category: formData.category || undefined,
-          images: descriptionImageUrls.length > 0 ? JSON.stringify(descriptionImageUrls) : undefined,
+          images: descriptionImageUrls.length > 0 ? imagesJson : undefined,
         });
         toast.success("Product created successfully");
       }

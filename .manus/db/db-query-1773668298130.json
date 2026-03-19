@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE products SET images = '[\"https://res.cloudinary.com/dytm0rmpa/image/upload/v1773666608/WS_Pro_ev4ufy.png\"]' WHERE id = 60005; UPDATE products SET images = '[\"https://res.cloudinary.com/dytm0rmpa/image/upload/v1773666624/Daily_02_ma5mec.png\"]' WHERE id = 90001;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2kZZZfmqknkRM4m.root --database DXoJFTzPkfdnBKgwYSzYQn --execute UPDATE products SET images = '[\"https://res.cloudinary.com/dytm0rmpa/image/upload/v1773666608/WS_Pro_ev4ufy.png\"]' WHERE id = 60005; UPDATE products SET images = '[\"https://res.cloudinary.com/dytm0rmpa/image/upload/v1773666624/Daily_02_ma5mec.png\"]' WHERE id = 90001;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1837
+}

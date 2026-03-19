@@ -120,3 +120,16 @@
 - [x] Download hero background image to local
 - [x] Remove storagePut/storageGet imports from routers.ts
 - [x] Test image upload, display, and deletion with local storage
+
+## Phase 13: Fix External Image URLs Not Displaying
+- [ ] Fix product detail images not showing when using external URLs (Cloudinary etc.)
+- [ ] Ensure ImageCarousel and ProductDetail support both local and external image URLs
+
+## Phase 14: Performance Optimization
+- [x] Analyze website performance (bundle size, network requests, images)
+- [x] Optimize JavaScript bundle (code splitting with React.lazy for ProductDetail, NewsDetail, AdminDashboard, Login)
+- [x] Optimize images (loading=lazy, decoding=async for all product/news images)
+- [x] Add Cloudinary URL transforms (w_400, f_auto, q_auto) for product thumbnails
+- [x] Add preconnect for Cloudinary domain
+- [x] Add loading spinner fallback for lazy-loaded routes
+- [x] Test performance improvements

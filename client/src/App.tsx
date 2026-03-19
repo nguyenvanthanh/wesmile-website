@@ -4,25 +4,44 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { lazy, Suspense } from "react";
+
+// Eagerly load Home for fast initial render
 import Home from "./pages/Home";
-import ProductDetail from "./pages/ProductDetail";
-import NewsDetail from "./pages/NewsDetail";
-import AdminDashboard from "./pages/AdminDashboard";
-import Login from "./pages/Login";
+
+// Lazy load non-critical routes for code splitting
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
+const NewsDetail = lazy(() => import("./pages/NewsDetail"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const Login = lazy(() => import("./pages/Login"));
+
+// Loading fallback component
+function PageLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+        <p className="text-gray-500 text-sm">Loading...</p>
+      </div>
+    </div>
+  );
+}
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/login" component={Login} />
-      <Route path="/product/:id" component={ProductDetail} />
-      <Route path="/news/:id" component={NewsDetail} />
-      <Route path="/admin" component={AdminDashboard} />
-      <Route path="/404" component={NotFound} />
-      {/* Final fallback route */}
-      <Route component={NotFound} />
-    </Switch>
+    <Suspense fallback={<PageLoader />}>
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/login" component={Login} />
+        <Route path="/product/:id" component={ProductDetail} />
+        <Route path="/news/:id" component={NewsDetail} />
+        <Route path="/admin" component={AdminDashboard} />
+        <Route path="/404" component={NotFound} />
+        {/* Final fallback route */}
+        <Route component={NotFound} />
+      </Switch>
+    </Suspense>
   );
 }
 

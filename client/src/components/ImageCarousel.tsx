@@ -37,6 +37,8 @@ export default function ImageCarousel({ images, title }: ImageCarouselProps) {
           <img
             src={images[currentIndex]}
             alt={`${title} - Image ${currentIndex + 1}`}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover"
             onError={(e) => {
               (e.target as HTMLImageElement).src =
@@ -94,6 +96,8 @@ export default function ImageCarousel({ images, title }: ImageCarouselProps) {
               <img
                 src={image}
                 alt={`${title} thumbnail ${index + 1}`}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src =

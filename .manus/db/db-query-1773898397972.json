@@ -1,0 +1,9 @@
+{
+  "query": "SELECT id, name, image, images FROM products WHERE image LIKE '%1773666768068%' OR image LIKE '%1773666769987%' OR images LIKE '%1773666768068%' OR images LIKE '%1773666769987%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2kZZZfmqknkRM4m.root --database DXoJFTzPkfdnBKgwYSzYQn --execute SELECT id, name, image, images FROM products WHERE image LIKE '%1773666768068%' OR image LIKE '%1773666769987%' OR images LIKE '%1773666768068%' OR images LIKE '%1773666769987%';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1752
+}

@@ -32,6 +32,16 @@ export default function Home() {
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
+  // Optimize image URL - add Cloudinary transforms for smaller size
+  const optimizeImageUrl = (url: string, width: number = 400) => {
+    if (!url) return url;
+    // Cloudinary URL transform: auto format, auto quality, resize width
+    if (url.includes('res.cloudinary.com') && url.includes('/upload/')) {
+      return url.replace('/upload/', `/upload/w_${width},f_auto,q_auto/`);
+    }
+    return url;
+  };
+
   // Get emoji based on product name
   const getProductEmoji = (name: string) => {
     const lowerName = name.toLowerCase();
@@ -253,8 +263,10 @@ export default function Home() {
                   <div className={`bg-gradient-to-br ${getGradientClass(index)} h-48 flex items-center justify-center overflow-hidden`}>
                     {product.image ? (
                       <img
-                        src={product.image}
+                        src={optimizeImageUrl(product.image, 400)}
                         alt={product.name}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           const img = e.target as HTMLImageElement;
@@ -360,7 +372,7 @@ export default function Home() {
                 >
                   <div className="bg-gradient-to-br from-blue-100 to-cyan-100 h-48 flex items-center justify-center overflow-hidden">
                     {newsItem.image ? (
-                      <img src={newsItem.image} alt={newsItem.title} className="w-full h-full object-cover hover:scale-105 transition-transform" />
+                      <img src={newsItem.image} alt={newsItem.title} loading="lazy" decoding="async" className="w-full h-full object-cover hover:scale-105 transition-transform" />
                     ) : (
                       <div className="text-5xl">📰</div>
                     )}

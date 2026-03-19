@@ -281,8 +281,10 @@ export default function ProductDetail() {
                   <div className="bg-gradient-to-br from-blue-100 to-cyan-100 h-48 flex items-center justify-center overflow-hidden">
                     {relatedProduct.image ? (
                       <img
-                        src={relatedProduct.image}
+                        src={relatedProduct.image.includes('res.cloudinary.com') ? relatedProduct.image.replace('/upload/', '/upload/w_400,f_auto,q_auto/') : relatedProduct.image}
                         alt={relatedProduct.name}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           (e.target as HTMLImageElement).style.display = 'none';
